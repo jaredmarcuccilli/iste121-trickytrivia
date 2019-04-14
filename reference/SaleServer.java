@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.text.*;
-import java.util.*;
 import java.io.Serializable;
 // Jared Marcuccilli Lab 8
 public class SaleServer extends JFrame implements ActionListener {

@@ -125,7 +125,7 @@ public class MyMultiThreadedServer{
          
          try {
             
-            br = new BufferedReader(new InputStreamReader( cs.getInputStream()));
+            br = new BufferedReader(new InputStreamReader(cs.getInputStream()));
             opw = new PrintWriter(new OutputStreamWriter(cs.getOutputStream()));
            
             opw.println("You have connected to the server!");

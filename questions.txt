@@ -1,25 +1,25 @@
-What was the first FIFA World Cup to be fully filmed in 4K?+Germany 2006+Qatar 2022+Brazil 2014+Russia 2018+4
-Which of the following was not a manufacturer of x86 CPUs?+Cyrix+IBM+Motorola+VIA+3
-What was the first web browser?+Mosaic+Netscape+WorldWideWeb+NeXT+3
-What was the Mac's first web browser?+Cello+Mosaic+Samba+ViolaWWW+3
-What was the first cross-platform web browser?+Cello+Mosaic+Internet Explorer+Nexus+2
-Google's first tweet on Twitter was a message encoded in binary that read what?+Don't be evil+I'm feeling lucky+Is this thing on?+Do the right thing+2
-What was the first handheld game console to ship with a color display?+Atari Lynx+Sega Game Gear+Neo Geo Pocket Color+Gameboy Color+1
-In the 1930s, which of these countries built an analog computer that ran on water?+United Kingdom+France+Soviet Union+Japan+3
-Which of these domain name sales was the most expensive?+Internet.com+CarInsurance.com+LasVegas.com+Porn.com+3
-What is Google's Android mascot unofficially known as?+Android+AutomaTom+Dandroid+Bugdroid+4
-Although the Sega Dreamcast was discontinued in 2001, what console exclusive received a DLC update in 2017?+Maken X+Floigan Bros.+Shenmue+Time Stalkers+2
-What was the first consumer desktop CPU to achieve 4GHz out of the box?+AMD FX-4170+AMD Ryzen 7 1800X+Intel i7-4790k+Intel Pentium 4 HT+1
-Released in 1989, the Psion MC-400 laptop was ahead of its time. Which of these features did it not have?+SSD storage+60 hour battery+Touchpad+Wi-Fi+4
-What is the name of the Windows XP default landscape wallpaper?+Splendor+Bliss+Happiness+Majesty+2
-The first rickroll occurred on 4chan's video game board disguised as a trailer for what game?+Half-Life 2+The Elder Scrolls: Oblivion+Grand Theft Auto IV+Mass Effect+3
-What was PayPal originally known as?+MoneyMate+The X-Change+iCash.com+Confinity+4
-The first 5MB hard drive weighed approximately how much?+Over a ton+250 pounds+50 pounds+25 pounds+1
-In 1999, the CEO of what tech company said you have zero privacy anyway...?+Geocities+Sun Microsystems+AOL+Google+2
-In its earliest days of development, what was Windows known as?+Interface Manager+Graphical Interlay+DOS Overlay+GDOS+1
-What was YouTube originally designed to be?+A virtual movie theater+An aggregator like Digg+A video dating service+A Napster knock-off+3
-What was the world's first digital, programmable robot?+The General Electric Walking Truck+The Johns Hopkins Beast+Unimate+The Stanford Arm+3
-Who originally created Siri?+UC Berkeley+DARPA+Apple+MIT+2
-Before smartphones, what was Android being developed for?+Game consoles+Cameras+Televisions+Cars+2
-How many feet of tape are in a standard VHS cassette?+812+120+512+240+1
-What was the first computer virus?+ILOVEYOU+Andromeda+Code Red+Creeper+4
+What was the first FIFA World Cup to be fully filmed in 4K?:Germany 2006:Qatar 2022:Brazil 2014:Russia 2018:4
+Which of the following was not a manufacturer of x86 CPUs?:Cyrix:IBM:Motorola:VIA:3
+What was the first web browser?:Mosaic:Netscape:WorldWideWeb:NeXT:3
+What was the Mac's first web browser?:Cello:Mosaic:Samba:ViolaWWW:3
+What was the first cross-platform web browser?:Cello:Mosaic:Internet Explorer:Nexus:2
+Google's first tweet on Twitter was a message encoded in binary that read what?:Don't be evil:I'm feeling lucky:Is this thing on?:Do the right thing:2
+What was the first handheld game console to ship with a color display?:Atari Lynx:Sega Game Gear:Neo Geo Pocket Color:Gameboy Color:1
+In the 1930s, which of these countries built an analog computer that ran on water?:United Kingdom:France:Soviet Union:Japan:3
+Which of these domain name sales was the most expensive?:Internet.com:CarInsurance.com:LasVegas.com:Porn.com:3
+What is Google's Android mascot unofficially known as?:Android:AutomaTom:Dandroid:Bugdroid:4
+Although the Sega Dreamcast was discontinued in 2001, what console exclusive received a DLC update in 2017?:Maken X:Floigan Bros.:Shenmue:Time Stalkers:2
+What was the first consumer desktop CPU to achieve 4GHz out of the box?:AMD FX-4170:AMD Ryzen 7 1800X:Intel i7-4790k:Intel Pentium 4 HT:1
+Released in 1989, the Psion MC-400 laptop was ahead of its time. Which of these features did it not have?:SSD storage:60 hour battery:Touchpad:Wi-Fi:4
+What is the name of the Windows XP default landscape wallpaper?:Splendor:Bliss:Happiness:Majesty:2
+The first rickroll occurred on 4chan's video game board disguised as a trailer for what game?:Half-Life 2:The Elder Scrolls: Oblivion:Grand Theft Auto IV:Mass Effect:3
+What was PayPal originally known as?:MoneyMate:The X-Change:iCash.com:Confinity:4
+The first 5MB hard drive weighed approximately how much?:Over a ton:250 pounds:50 pounds:25 pounds:1
+In 1999, the CEO of what tech company said you have zero privacy anyway...?:Geocities:Sun Microsystems:AOL:Google:2
+In its earliest days of development, what was Windows known as?:Interface Manager:Graphical Interlay:DOS Overlay:GDOS:1
+What was YouTube originally designed to be?:A virtual movie theater:An aggregator like Digg:A video dating service:A Napster knock-off:3
+What was the world's first digital, programmable robot?:The General Electric Walking Truck:The Johns Hopkins Beast:Unimate:The Stanford Arm:3
+Who originally created Siri?:UC Berkeley:DARPA:Apple:MIT:2
+Before smartphones, what was Android being developed for?:Game consoles:Cameras:Televisions:Cars:2
+How many feet of tape are in a standard VHS cassette?:812:120:512:240:1
+What was the first computer virus?:ILOVEYOU:Andromeda:Code Red:Creeper:4

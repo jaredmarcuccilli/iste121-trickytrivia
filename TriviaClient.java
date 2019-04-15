@@ -10,6 +10,8 @@ import java.io.Serializable;
 public class TriviaClient extends JFrame implements ActionListener {
     private JTextArea jtaStream;
     
+    private String name;
+    private String server;
     private Socket s;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
@@ -17,20 +19,22 @@ public class TriviaClient extends JFrame implements ActionListener {
     private boolean connected = false;
     
     public static void main(String[] args) {
-        new TriviaClient();
+
+        new TriviaClient(args[0], args[1]);
     }
     
-    public TriviaClient() {
+    public TriviaClient(String _server, String _name) {
         super("Trivia - Client");
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         setSize(500, 500);
-        
-        JFrame test = new JFrame("Connect");
-        test.setSize(400, 400);
-        test.setVisible(true);
-        
         setVisible(true);
+        
+        server = _server;
+        name = _name;
+        
+        jtaStream = new JTextArea();
+        add(jtaStream);
         
         addWindowListener(
             new WindowAdapter() {
@@ -38,6 +42,8 @@ public class TriviaClient extends JFrame implements ActionListener {
                     shutdown();
                 }
         });
+        
+        connect();
     }
     
     public void actionPerformed(ActionEvent ae) {
@@ -52,28 +58,41 @@ public class TriviaClient extends JFrame implements ActionListener {
         
         public void run() {
             try {
-                ois = new ObjectInputStream(s.getInputStream());
                 oos = new ObjectOutputStream(s.getOutputStream());
+                ois = new ObjectInputStream(s.getInputStream());
                 connected = true;
+                
+                oos.writeObject(name);
+                
+                while (connected) {
+                    Object in = ois.readObject();
+                    
+                    if (in instanceof Question) {
+                        jtaStream.append(
+                    }
+                }
+                
             } catch (IOException ioe) {
                 ioe.printStackTrace();
+            } catch (ClassNotFoundException cnfe) {
+                cnfe.printStackTrace();
             }
         }
     }
     
-    public void connect(String _server) {
+    public void connect() {
         try {
-            s = new Socket(_server, 16789);
+            s = new Socket(server, 16789);
             
             TriviaClientThread tct = new TriviaClientThread();
             tct.start();
 
         } catch (UnknownHostException uhe) {
-            jtaStream.append("\n\nUnknown host: " + _server);
-            jtaStream.append("\nPlease enter another hostname.");
+            jtaStream.append("Unknown host: " + server);
+            jtaStream.append("Please enter another hostname.");
             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         } catch (ConnectException ce) {
-            jtaStream.append("\n\nConnection refused. (is the server running?)");
+            jtaStream.append("Connection refused. (is the server running?)");
             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +108,7 @@ public class TriviaClient extends JFrame implements ActionListener {
                 ois.close();
                 oos.close();
             } else {
-                System.out.println("\tWasn't connected");
+                System.out.println("Wasn't connected");
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();

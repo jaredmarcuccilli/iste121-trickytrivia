@@ -37,7 +37,7 @@ public class Question implements Serializable {
         return answer4;
     }
     
-    public int getCorrectAnswer() {
+    public int getCorrectAnswerNum() {
         return correctAnswer;
     }
     

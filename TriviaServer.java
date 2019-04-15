@@ -10,8 +10,11 @@ import java.io.Serializable;
 public class TriviaServer extends JFrame implements ActionListener {
     private Vector<Thread> threads = new Vector<Thread>();
     private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
-    private static final int PLAYERS = 2; // this should be set in the gui
+    private static final int PLAYERS = 1; // this should be set in the gui
     private Question currentQuestion;
+    private int currentQuestionNo;
+    private int answersIn;
+    private BufferedReader questionBr = null;
     
     public static void main(String[] args) {
         new TriviaServer();
@@ -32,6 +35,10 @@ public class TriviaServer extends JFrame implements ActionListener {
         });
         
         try {
+            FileInputStream fis = new FileInputStream("questions.txt");
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            questionBr = new BufferedReader(new InputStreamReader(bis));
+            
             ServerSocket ss = new ServerSocket(16789);
             while(threads.size() < PLAYERS) {
                 System.out.println("Waiting for a client...");
@@ -46,10 +53,16 @@ public class TriviaServer extends JFrame implements ActionListener {
         }
         
         System.out.println("Starting the game!");
-        for (int i = 0; i < 10; i++) { // 10 questions for testing
-            currentQuestion = getQuestion();
-            sendClients(currentQuestion);
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
         }
+        //for (int i = 0; i < 10; i++) { // 10 questions for testing
+            currentQuestion = getNewQuestion();
+            //System.out.println(currentQuestion.toString());
+            sendClients(currentQuestion);
+        //}
     }
     
     public void actionPerformed(ActionEvent ae) {
@@ -61,9 +74,18 @@ public class TriviaServer extends JFrame implements ActionListener {
         private ObjectInputStream ois;
         private ObjectOutputStream oos;
         private String name;
+        private int score;
         
         public TriviaServerThread(Socket _s) {
             s = _s;
+        }
+        
+        public String getPlayerName() {
+            return name;
+        }
+        
+        public int getPlayerScore() {
+            return score;
         }
         
         public void run() {
@@ -71,8 +93,25 @@ public class TriviaServer extends JFrame implements ActionListener {
                 ois = new ObjectInputStream(s.getInputStream());
                 oos = new ObjectOutputStream(s.getOutputStream());
                 allObjectOutputStreams.add(oos);
-                
+                System.out.println(allObjectOutputStreams.size());
                 name = (String)ois.readObject();
+                System.out.println(name + " joined the server");
+                
+                while (true) {
+                    Object in = ois.readObject();
+                    if (in instanceof Answer) {
+                        Answer a = (Answer)in;
+                        answersIn++;
+                        if (a.getPlayerAnswerNum() == currentQuestion.getCorrectAnswerNum()) {
+                            // update score
+                        }
+                        if (answersIn == threads.size()) {
+                            // trigger move on to next question, will also happen if timer runs out
+                        }
+                    } else if (in instanceof Message) {
+                    
+                    }
+                }
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             } catch (ClassNotFoundException cnfe) {
@@ -89,10 +128,10 @@ public class TriviaServer extends JFrame implements ActionListener {
     
     // Sent object to all clients
     public void sendClients(Object _o) {
+        System.out.println(allObjectOutputStreams.size());
         for (ObjectOutputStream oos : allObjectOutputStreams) {
             try {
                 oos.writeObject(_o);
-                System.out.println("Sent the following object to " + threads.size() + " clients: " + _o.toString());
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
@@ -100,16 +139,12 @@ public class TriviaServer extends JFrame implements ActionListener {
     }
     
     // Return a Question object
-    public Question getQuestion() {
-        BufferedReader br = null;
+    public Question getNewQuestion() {
+        
         String[] questionElements = new String[6];
         
         try {
-            FileInputStream fis = new FileInputStream("questions.txt");
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            br = new BufferedReader(new InputStreamReader(bis));
-            
-            questionElements = br.readLine().split(":");
+            questionElements = questionBr.readLine().split(":");
         } catch (FileNotFoundException fnfe) {
          
         } catch (IOException ioe) {

@@ -73,17 +73,19 @@ public class TriviaClient extends JFrame implements ActionListener {
         jtaStream.setEditable(false);
         jtaStream.setWrapStyleWord(true);
         jtaStream.setLineWrap(true);
+        JScrollPane jspStream = new JScrollPane(jtaStream);
+        
+        jpChat.add(jspStream, BorderLayout.CENTER);
+        jpChat.add(jpTextIn, BorderLayout.SOUTH);
 
         jtfChat = new JTextField();
         jtfChat.addActionListener(this);
         jpTextIn.add(jtfChat);
 
         jbSend = new JButton("Send");
+        jbSend.setEnabled(false);
         jbSend.addActionListener(this);
         jpTextIn.add(jbSend, BorderLayout.EAST);
-
-        jpChat.add(jtaStream, BorderLayout.CENTER);
-        jpChat.add(jpTextIn, BorderLayout.SOUTH);
 
         jtaStream.append("Trivia Client starting...");
 
@@ -170,6 +172,7 @@ public class TriviaClient extends JFrame implements ActionListener {
                 oos = new ObjectOutputStream(s.getOutputStream());
                 ois = new ObjectInputStream(s.getInputStream());
                 connected = true;
+                jbSend.setEnabled(true);
 
                 oos.writeObject(name);
 
@@ -201,35 +204,34 @@ public class TriviaClient extends JFrame implements ActionListener {
                         System.out.println(correctAnswer);
 
                         switch (chosenAnswer) {
-                        case 1:
-                            jb1.setBackground(Color.RED);
-                            jb1.setOpaque(true);
-
-                            repaint();
-                            break;
-                        case 2:
-                            jb2.setBackground(Color.RED);
-                            jb2.setOpaque(true);
-                            repaint();
-                            break;
-                        case 3:
-                            jb3.setBackground(Color.RED);
-                            jb3.setOpaque(true);
-                            repaint();
-
-                            break;
-                        case 4:
-                            jb4.setBackground(Color.RED);
-                            jb4.setOpaque(true);
-                            repaint();
-
-                            break;
-                        default:
-                            break;
+                            case 1:
+                                jb1.setBackground(Color.RED);
+                                jb1.setOpaque(true);
+    
+                                repaint();
+                                break;
+                            case 2:
+                                jb2.setBackground(Color.RED);
+                                jb2.setOpaque(true);
+                                repaint();
+                                break;
+                            case 3:
+                                jb3.setBackground(Color.RED);
+                                jb3.setOpaque(true);
+                                repaint();
+    
+                                break;
+                            case 4:
+                                jb4.setBackground(Color.RED);
+                                jb4.setOpaque(true);
+                                repaint();
+    
+                                break;
+                            default:
+                                break;
                         }
 
-                        //if(chosenAnswer == correctAnswer) {
-                            switch (correctAnswer) {
+                        switch (correctAnswer) {
                             case 1:
                                 jb1.setBackground(Color.GREEN);
                                 jb1.setOpaque(true);
@@ -259,15 +261,14 @@ public class TriviaClient extends JFrame implements ActionListener {
                                 break;
                             default:
                                 break;
-                            }
                         }
-
-                    //}
-                    // in = ois.readObject();
+                    }
                 }
             } catch (SocketException se) {
                 // client lost connection to server
-                System.out.println("Lost connection to server");
+                jtaStream.append("\nLost connection to server");
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+                jbSend.setEnabled(false);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             } catch (ClassNotFoundException cnfe) {
@@ -282,6 +283,7 @@ public class TriviaClient extends JFrame implements ActionListener {
             TriviaClientThread tct = new TriviaClientThread();
             tct.start();
             jtaStream.append("\nConnected to server.");
+            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         } catch (UnknownHostException uhe) {
             jtaStream.append("\nUnknown host: " + server);
             jtaStream.append("\nPlease enter another hostname.");

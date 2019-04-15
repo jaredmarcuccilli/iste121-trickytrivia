@@ -42,6 +42,6 @@ public class Question implements Serializable {
     }
     
     public String toString() {
-        return question + "\n" + answer1 + "\n" + answer2 + "\n" + answer3 + "\n" + answer4 + "\n" + correctAnswer;
+        return question + "\n\t" + answer1 + "\n\t" + answer2 + "\n\t" + answer3 + "\n\t" + answer4 + "\n\t" + correctAnswer;
     }
 }

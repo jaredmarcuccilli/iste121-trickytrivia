@@ -63,17 +63,20 @@ public class TriviaServer extends JFrame implements ActionListener {
             ServerSocket ss = new ServerSocket(16789);
             while(threads.size() < PLAYERS) {
                 jtaStream.append("\nWaiting for a client...");
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 Socket s = ss.accept();
                 TriviaServerThread tst = new TriviaServerThread(s);
                 threads.add(tst);
                 tst.start();
                 jtaStream.append("\nClient connected. Current connections: " + threads.size());
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         
         jtaStream.append("\nStarting the game!");
+        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         try {
             Thread.sleep(100);
         } catch (InterruptedException ie) {
@@ -83,9 +86,13 @@ public class TriviaServer extends JFrame implements ActionListener {
     
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == jbSendQuestion) {
+            currentQuestionNo++;
             currentQuestion = getNewQuestion();
-            sendClients(currentQuestion);
-            jtaStream.append("\n" + currentQuestion.toString()); 
+            if (currentQuestion != null) {
+                sendClients(currentQuestion);
+                jtaStream.append("\n" + currentQuestionNo + ". " + currentQuestion.toString());
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+            } 
         }
     }
     
@@ -107,6 +114,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                 thisPlayer = new Player((String)ois.readObject());
                 players.add(thisPlayer);
                 jtaStream.append("\n" + thisPlayer.getPlayerName() + " joined the server");
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 
                 while (true) {
                     Object in = ois.readObject();
@@ -117,11 +125,13 @@ public class TriviaServer extends JFrame implements ActionListener {
                             // correct answer, update score
                             thisPlayer.addPlayerScore(10);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is correct. Their score is: " + thisPlayer.getPlayerScore());
+                            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                             oos.writeObject("You got the question right. Your score is: " + thisPlayer.getPlayerScore());
                         } else {
                             // incorrect answer, update score
                             thisPlayer.subtractPlayerScore(10);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is incorrect. Their score is: " + thisPlayer.getPlayerScore());
+                            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                             oos.writeObject("You got the question wrong. Your score is: " + thisPlayer.getPlayerScore());
                         }
                         oos.writeObject(currentQuestion.getCorrectAnswerNum());
@@ -132,18 +142,21 @@ public class TriviaServer extends JFrame implements ActionListener {
                     } else if (in instanceof Message) {
                         Message m = (Message)in;
                         jtaStream.append("\n" + m.toString());
+                        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                         sendClients(m);
                     }
                 }
             } catch (SocketException se) {
                 // server lost connection to client
                 jtaStream.append("\nLost connection to: " + thisPlayer.getPlayerName());
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 threads.remove(this);
                 players.remove(thisPlayer);
                 allObjectOutputStreams.remove(oos);
             } catch (EOFException eofe) {
                 // server lost connection to client
                 jtaStream.append("\nLost connection to: " + thisPlayer.getPlayerName());
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 threads.remove(this);
                 players.remove(thisPlayer);
                 allObjectOutputStreams.remove(oos);
@@ -158,6 +171,7 @@ public class TriviaServer extends JFrame implements ActionListener {
     // Server shutdown
     public void shutdown() {
         jtaStream.append("\nServer shutting down...");
+        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         System.exit(0);
     }
     
@@ -178,13 +192,17 @@ public class TriviaServer extends JFrame implements ActionListener {
         
         try {
             questionElements = questionBr.readLine().split(":");
+            Question q = new Question(questionElements[0], questionElements[1], questionElements[2], questionElements[3], questionElements[4], questionElements[5]);
+            return q;
         } catch (FileNotFoundException fnfe) {
          
         } catch (IOException ioe) {
          
+        } catch (NullPointerException npe) {
+            jbSendQuestion.setEnabled(false);
+            jtaStream.append("\nReached end of question file");
+            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         }
-          
-        Question q = new Question(questionElements[0], questionElements[1], questionElements[2], questionElements[3], questionElements[4], questionElements[5]);
-        return q;
+        return null;
     }
 }

@@ -120,6 +120,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is incorrect. Their score is: " + thisPlayer.getPlayerScore());
                             oos.writeObject("You got the question wrong. Your score is: " + thisPlayer.getPlayerScore());
                         }
+                        oos.writeObject(currentQuestion.getCorrectAnswerNum());
                         
                         if (answersIn == threads.size()) {
                             // trigger move on to next question, will also happen if timer runs out

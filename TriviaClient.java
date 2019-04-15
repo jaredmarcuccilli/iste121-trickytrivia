@@ -18,12 +18,12 @@ public class TriviaClient extends JFrame implements ActionListener {
     private String server;
     private Socket s;
     private ObjectInputStream ois;
-    private ObjectOutputStream oos;	// Object writer
+    private ObjectOutputStream oos; // Object writer
     
-    private JButton jb1;	//
-    private JButton jb2;	// Answer
-    private JButton jb3;	// Buttons
-    private JButton jb4;	//
+    private JButton jb1; //
+    private JButton jb2; // Answer
+    private JButton jb3; // Buttons
+    private JButton jb4; //
     
     /**
      * @param args[0] Server IP
@@ -32,7 +32,6 @@ public class TriviaClient extends JFrame implements ActionListener {
     private boolean connected = false;
     
     public static void main(String[] args) {
-
         new TriviaClient(args[0], args[1]);
     }
     
@@ -96,7 +95,9 @@ public class TriviaClient extends JFrame implements ActionListener {
 			BufferedImage lightHeart = ImageIO.read(new File("Light.png"));
 			BufferedImage darkHeart = ImageIO.read(new File("Dark.png"));
 			
-			for(int i = 0;i<3;i++) {jpLives.add(new JLabel(new ImageIcon(lightHeart)));}
+			for(int i = 0;i<3;i++) {
+            jpLives.add(new JLabel(new ImageIcon(lightHeart)));
+         }
 		} catch (IOException e1) {
 			//e1.printStackTrace();
 			System.out.println("Couldn't read icons");

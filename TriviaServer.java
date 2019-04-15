@@ -124,7 +124,8 @@ public class TriviaServer extends JFrame implements ActionListener {
                             // trigger move on to next question, will also happen if timer runs out
                         }
                     } else if (in instanceof Message) {
-                    
+                        Message m = (Message)in;
+                        sendClients(m);
                     }
                 }
             } catch (SocketException se) {

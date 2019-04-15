@@ -35,6 +35,7 @@ public class TriviaClient extends JFrame implements ActionListener {
         
         jtaStream = new JTextArea();
         add(jtaStream);
+        jtaStream.append("Trivia Client starting...");
         
         addWindowListener(
             new WindowAdapter() {
@@ -68,10 +69,18 @@ public class TriviaClient extends JFrame implements ActionListener {
                     Object in = ois.readObject();
                     
                     if (in instanceof Question) {
-                        jtaStream.append(
+                        Question q = (Question)in;
+                        jtaStream.append("\n" + q.getQuestion() + "\n");
+                        jtaStream.append(q.getAnswer1() + "\n");
+                        jtaStream.append(q.getAnswer2() + "\n");
+                        jtaStream.append(q.getAnswer3() + "\n");
+                        jtaStream.append(q.getAnswer4());
                     }
                 }
-                
+            } catch (SocketException se) {
+                // client lost connection to server
+                System.out.println("Lost connection to server");
+                shutdown();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             } catch (ClassNotFoundException cnfe) {
@@ -88,11 +97,11 @@ public class TriviaClient extends JFrame implements ActionListener {
             tct.start();
 
         } catch (UnknownHostException uhe) {
-            jtaStream.append("Unknown host: " + server);
-            jtaStream.append("Please enter another hostname.");
+            jtaStream.append("\nUnknown host: " + server);
+            jtaStream.append("\nPlease enter another hostname.");
             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         } catch (ConnectException ce) {
-            jtaStream.append("Connection refused. (is the server running?)");
+            jtaStream.append("\nConnection refused. (is the server running?)");
             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         } catch (Exception e) {
             e.printStackTrace();

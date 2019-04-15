@@ -8,6 +8,8 @@ import javax.swing.text.*;
 import java.io.Serializable;
 
 public class TriviaServer extends JFrame implements ActionListener {
+    private JTextArea jtaStream;
+    
     private Vector<Thread> threads = new Vector<Thread>();
     private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
     private static final int PLAYERS = 1; // this should be set in the gui
@@ -27,6 +29,10 @@ public class TriviaServer extends JFrame implements ActionListener {
         setSize(500, 500);
         setVisible(true);
         
+        jtaStream = new JTextArea();
+        add(jtaStream);
+        jtaStream.append("Trivia Server starting...");
+        
         addWindowListener(
             new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
@@ -41,28 +47,26 @@ public class TriviaServer extends JFrame implements ActionListener {
             
             ServerSocket ss = new ServerSocket(16789);
             while(threads.size() < PLAYERS) {
-                System.out.println("Waiting for a client...");
+                jtaStream.append("\nWaiting for a client...");
                 Socket s = ss.accept();
                 TriviaServerThread tst = new TriviaServerThread(s);
                 threads.add(tst);
                 tst.start();
-                System.out.println("Client connected. Current connections: " + threads.size());
+                jtaStream.append("\nClient connected. Current connections: " + threads.size());
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         
-        System.out.println("Starting the game!");
+        jtaStream.append("\nStarting the game!");
         try {
             Thread.sleep(100);
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
-        //for (int i = 0; i < 10; i++) { // 10 questions for testing
-            currentQuestion = getNewQuestion();
-            //System.out.println(currentQuestion.toString());
-            sendClients(currentQuestion);
-        //}
+        
+        currentQuestion = getNewQuestion();
+        sendClients(currentQuestion);
     }
     
     public void actionPerformed(ActionEvent ae) {
@@ -93,9 +97,8 @@ public class TriviaServer extends JFrame implements ActionListener {
                 ois = new ObjectInputStream(s.getInputStream());
                 oos = new ObjectOutputStream(s.getOutputStream());
                 allObjectOutputStreams.add(oos);
-                System.out.println(allObjectOutputStreams.size());
                 name = (String)ois.readObject();
-                System.out.println(name + " joined the server");
+                jtaStream.append("\n" + name + " joined the server");
                 
                 while (true) {
                     Object in = ois.readObject();
@@ -103,7 +106,9 @@ public class TriviaServer extends JFrame implements ActionListener {
                         Answer a = (Answer)in;
                         answersIn++;
                         if (a.getPlayerAnswerNum() == currentQuestion.getCorrectAnswerNum()) {
-                            // update score
+                            // correct answer, update score
+                        } else {
+                            // incorrect answer, update score
                         }
                         if (answersIn == threads.size()) {
                             // trigger move on to next question, will also happen if timer runs out
@@ -112,6 +117,11 @@ public class TriviaServer extends JFrame implements ActionListener {
                     
                     }
                 }
+            } catch (EOFException eofe) {
+                // server lost connection to client
+                jtaStream.append("\nLost connection to: " + name);
+                threads.remove(this);
+                allObjectOutputStreams.remove(oos);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             } catch (ClassNotFoundException cnfe) {
@@ -122,13 +132,12 @@ public class TriviaServer extends JFrame implements ActionListener {
     
     // Server shutdown
     public void shutdown() {
-        System.out.println("Server shutting down...");
+        jtaStream.append("\nServer shutting down...");
         System.exit(0);
     }
     
     // Sent object to all clients
     public void sendClients(Object _o) {
-        System.out.println(allObjectOutputStreams.size());
         for (ObjectOutputStream oos : allObjectOutputStreams) {
             try {
                 oos.writeObject(_o);

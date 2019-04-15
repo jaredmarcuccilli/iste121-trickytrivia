@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.text.*;
 import java.io.Serializable;
+import java.util.Timer;
 
 public class TriviaServer extends JFrame implements ActionListener {
     private JTextArea jtaStream;
@@ -18,8 +19,11 @@ public class TriviaServer extends JFrame implements ActionListener {
     private int currentQuestionNo;
     private int answersIn;
     private BufferedReader questionBr = null;
+    private boolean serverOpen = true;
     
     private JButton jbSendQuestion;
+    private JButton jbStartGame;
+    private JProgressBar jpbRemaining = new JProgressBar();
     
     public static void main(String[] args) {
         new TriviaServer();
@@ -40,6 +44,15 @@ public class TriviaServer extends JFrame implements ActionListener {
         add(jspStream);
         jtaStream.append("Trivia Server starting...");
         
+        Dimension jpbSize = new Dimension();
+		jpbSize.setSize(500, 25);
+		jpbRemaining.setPreferredSize(jpbSize);
+		jpbRemaining.setMaximum(10000); //TIME TO ANSWER IN MILISECONDS
+		jpbRemaining.setMinimum(0);
+		jpbRemaining.setValue(10000);
+		jpbRemaining.setStringPainted(true);
+        add(jpbRemaining, BorderLayout.NORTH);
+        
         addWindowListener(
             new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
@@ -48,6 +61,9 @@ public class TriviaServer extends JFrame implements ActionListener {
         });
         
         JPanel jpSouth = new JPanel();
+        jbStartGame = new JButton("Start Game!");
+            jbStartGame.addActionListener(this);
+            jpSouth.add(jbStartGame);
         jbSendQuestion = new JButton("Send Next Question");
             jbSendQuestion.addActionListener(this);
             jpSouth.add(jbSendQuestion);
@@ -61,7 +77,7 @@ public class TriviaServer extends JFrame implements ActionListener {
             questionBr = new BufferedReader(new InputStreamReader(bis));
             
             ServerSocket ss = new ServerSocket(16789);
-            while(threads.size() < PLAYERS) {
+            while(serverOpen) {
                 jtaStream.append("\nWaiting for a client...");
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 Socket s = ss.accept();
@@ -86,14 +102,37 @@ public class TriviaServer extends JFrame implements ActionListener {
     
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == jbSendQuestion) {
-            currentQuestionNo++;
-            currentQuestion = getNewQuestion();
-            if (currentQuestion != null) {
-                sendClients(currentQuestion);
-                jtaStream.append("\n" + currentQuestionNo + ". " + currentQuestion.toString());
-                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-            } 
+            sendQuestion();
         }
+    }
+    
+    public class UpdateBar extends TimerTask {
+		public void run() {
+            jbSendQuestion.setEnabled(false);
+			if(jpbRemaining.getValue() > 0) {
+				jpbRemaining.setValue(jpbRemaining.getValue() - 10);
+				// Changing printed value of progress bar
+				jpbRemaining.setString(jpbRemaining.getValue() / 1000 + "." + (jpbRemaining.getValue() % 1000)/10 + " Seconds Remaining");
+			} else {
+				jtaStream.append("\nTime's up!");
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+				jpbRemaining.setValue(0);
+				jpbRemaining.setString("Time's up!");
+                sendClients(currentQuestion.getCorrectAnswerNum());
+                jpbRemaining.setValue(10000);
+                jbSendQuestion.setEnabled(true);
+				this.cancel();
+			}
+		}
+	}
+    
+    public void startTimer() {
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new UpdateBar(), 0, 10);
+	}
+    
+    public void startGame() {
+        serverOpen = false;
     }
     
     public class TriviaServerThread extends Thread implements Serializable {
@@ -126,15 +165,16 @@ public class TriviaServer extends JFrame implements ActionListener {
                             thisPlayer.addPlayerScore(10);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is correct. Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-                            oos.writeObject("You got the question right. Your score is: " + thisPlayer.getPlayerScore());
+                        } else if (a.getPlayerAnswerNum() == 0) {
+                            thisPlayer.subtractPlayerScore(10);
+                            jtaStream.append("\n" + thisPlayer.getPlayerName() + " didn't answer in time! Their score is: " + thisPlayer.getPlayerScore());
+                            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                         } else {
                             // incorrect answer, update score
                             thisPlayer.subtractPlayerScore(10);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is incorrect. Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-                            oos.writeObject("You got the question wrong. Your score is: " + thisPlayer.getPlayerScore());
                         }
-                        oos.writeObject(currentQuestion.getCorrectAnswerNum());
                         
                         if (answersIn == threads.size()) {
                             // trigger move on to next question, will also happen if timer runs out
@@ -184,6 +224,17 @@ public class TriviaServer extends JFrame implements ActionListener {
                 ioe.printStackTrace();
             }
         }
+    }
+    
+    public void sendQuestion() {
+        currentQuestionNo++;
+        currentQuestion = getNewQuestion();
+        if (currentQuestion != null) {
+            sendClients(currentQuestion);
+            jtaStream.append("\n" + currentQuestionNo + ". " + currentQuestion.toString());
+            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+        } 
+        startTimer();
     }
     
     // Return a Question object

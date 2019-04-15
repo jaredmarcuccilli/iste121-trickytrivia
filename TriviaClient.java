@@ -1,20 +1,19 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
-
-import javax.imageio.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
-
 import javax.swing.text.*;
+import java.io.Serializable;
+import java.util.Timer;
 
 public class TriviaClient extends JFrame implements ActionListener {
     private JTextArea jtaStream;
     private JTextArea jtQues;
     private JTextField jtfChat;
     private int chosenAnswer;
+    private boolean answered = false;
 
     private String name;
     private String server;
@@ -28,6 +27,7 @@ public class TriviaClient extends JFrame implements ActionListener {
     private JButton jb4; //
 
     private JButton jbSend;
+    private JProgressBar jpbRemaining = new JProgressBar();
 
     /**
      * @param args[0] Server IP
@@ -44,7 +44,7 @@ public class TriviaClient extends JFrame implements ActionListener {
         super("Trivia - Client");
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        setSize(600, 500);
+        setSize(600, 300);
         setResizable(false);
        
 
@@ -52,9 +52,17 @@ public class TriviaClient extends JFrame implements ActionListener {
         JPanel jpGame = new JPanel(new BorderLayout()); // Holds the game components see GUI mockup on trello
         // JPanel jpLives = new JPanel(new FlowLayout()); // Holds lives
         JPanel jpAns = new JPanel(new GridLayout(0, 1)); // Hold answer buttons
-        JPanel jpQues = new JPanel(new BorderLayout()); // Holds question
         JPanel jpChat = new JPanel(new BorderLayout()); // Holds chat contents
         JPanel jpTextIn = new JPanel(new BorderLayout()); // Holds chat entry
+        
+        Dimension jpbSize = new Dimension();
+		jpbSize.setSize(500, 25);
+		jpbRemaining.setPreferredSize(jpbSize);
+		jpbRemaining.setMaximum(10000); //TIME TO ANSWER IN MILISECONDS
+		jpbRemaining.setMinimum(0);
+		jpbRemaining.setValue(10000);
+		jpbRemaining.setStringPainted(true);
+        jpGame.add(jpbRemaining, BorderLayout.NORTH);
 
         server = _server;
         name = _name;
@@ -109,28 +117,16 @@ public class TriviaClient extends JFrame implements ActionListener {
         jpAns.add(jb4);
         disableButtons();
 
-        try {
-            BufferedImage lightHeart = ImageIO.read(new File("Light.png"));
-            BufferedImage darkHeart = ImageIO.read(new File("Dark.png"));
-
-            // for(int i = 0;i<3;i++) {jpLives.add(new JLabel(new ImageIcon(lightHeart)));}
-        } catch (IOException e1) {
-            // e1.printStackTrace();
-            System.out.println("Couldn't read icons");
-        }
-
-        jpGame.add(jtQues, BorderLayout.NORTH);
+        jpGame.add(jtQues, BorderLayout.CENTER);
         // jpGame.add(jpLives, BorderLayout.SOUTH);
-        jpGame.add(jpAns, BorderLayout.CENTER);
+        jpGame.add(jpAns, BorderLayout.SOUTH);
 
         jpMain.add(jpGame, BorderLayout.CENTER);
         jpMain.add(jpChat, BorderLayout.EAST);
 
         add(jpMain);
-        jpMain.repaint();
-
-        connect();
         setVisible(true);
+        connect();
     }
 
     public void actionPerformed(ActionEvent ae) {
@@ -139,18 +135,22 @@ public class TriviaClient extends JFrame implements ActionListener {
                 chosenAnswer = 1;
                 disableButtons();
                 oos.writeObject(new Answer(1));
+                answered = true;
             } else if (ae.getSource() == jb2) {
                 chosenAnswer = 2;
                 disableButtons();
                 oos.writeObject(new Answer(2));
+                answered = true;
             } else if (ae.getSource() == jb3) {
                 chosenAnswer = 3;
                 disableButtons();
                 oos.writeObject(new Answer(3));
+                answered = true;
             } else if (ae.getSource() == jb4) {
                 chosenAnswer = 4;
                 disableButtons();
                 oos.writeObject(new Answer(4));
+                answered = true;
             } else if (ae.getSource() == jbSend || ae.getSource() == jtfChat) {
                 // send chat message
                 oos.writeObject(new Message(name, jtfChat.getText()));
@@ -162,7 +162,7 @@ public class TriviaClient extends JFrame implements ActionListener {
     }
 
     public class TriviaClientThread extends Thread implements Serializable {
-
+    
         public TriviaClientThread() {
 
         }
@@ -180,6 +180,8 @@ public class TriviaClient extends JFrame implements ActionListener {
                     Object in = ois.readObject();
 
                     if (in instanceof Question) {
+                        startTimer();
+                        answered = false;
                         Question q = (Question) in;
                         jtQues.setText(q.getQuestion());
                         jb1.setText(q.getAnswer1());
@@ -196,13 +198,12 @@ public class TriviaClient extends JFrame implements ActionListener {
                     } else if (in instanceof Message) {
                         Message m = (Message) in;
                         jtaStream.append("\n" + m.getSource() + ": " + m.getMessage());
+                        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                     } else if (in instanceof String) {
                         jtaStream.append("\n" + (String) in);
+                        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                     } else if (in instanceof Integer) {
-                        System.out.println("received correct answer");
-                        int correctAnswer = (Integer) in;
-                        System.out.println(correctAnswer);
-
+                        int correctAnswer = (Integer)in;
                         switch (chosenAnswer) {
                             case 1:
                                 jb1.setBackground(Color.RED);
@@ -276,7 +277,36 @@ public class TriviaClient extends JFrame implements ActionListener {
             }
         }
     }
-
+    
+    public class UpdateBar extends TimerTask {
+		public void run() {
+			if(jpbRemaining.getValue() > 0) {
+				jpbRemaining.setValue(jpbRemaining.getValue() - 10);
+				// Changing printed value of progress bar
+				jpbRemaining.setString(jpbRemaining.getValue() / 1000 + "." + (jpbRemaining.getValue() % 1000)/10 + " Seconds Remaining");
+			} else {
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+				jpbRemaining.setValue(0);
+				jpbRemaining.setString("Time's up!");
+                jpbRemaining.setValue(10000);
+                if (!answered) {
+                    try {
+                        oos.writeObject(new Answer(0));
+                        chosenAnswer = 0;
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+				this.cancel();
+			}
+		}
+	}
+    
+    public void startTimer() {
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new UpdateBar(), 0, 10);
+	}
+    
     public void connect() {
         try {
             s = new Socket(server, 16789);

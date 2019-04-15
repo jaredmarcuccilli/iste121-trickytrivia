@@ -161,7 +161,8 @@ public class TriviaClient extends JFrame implements ActionListener {
                         jb4.setText(q.getAnswer4());
                         enableButtons();
                     } else if (in instanceof Message) {
-                    
+                        Message m = (Message)in;
+                        jtaStream.append("\n" + m.getSource() + ": " + m.getMessage());
                     } else if (in instanceof String) {
                         jtaStream.append("\n" + (String)in);
                     }

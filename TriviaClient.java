@@ -67,7 +67,8 @@ public class TriviaClient extends JFrame implements ActionListener {
         jtaStream.setEditable(false);
         jtaStream.setWrapStyleWord(true);
         jtaStream.setLineWrap(true);
-        jpChat.add(jtaStream, BorderLayout.CENTER);
+        JScrollPane jspStream = new JScrollPane(jtaStream);
+        jpChat.add(jspStream, BorderLayout.CENTER);
         jpChat.add(jpTextIn, BorderLayout.SOUTH);
         jtaStream.append("Trivia Client starting...");
         

@@ -1,26 +1,34 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
+
+import javax.imageio.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
+
 import javax.swing.text.*;
-import java.io.Serializable;
 
 public class TriviaClient extends JFrame implements ActionListener {
     private JTextArea jtaStream;
+    private JTextArea jtQues;
     
     private String name;
     private String server;
     private Socket s;
     private ObjectInputStream ois;
-    private ObjectOutputStream oos;
+    private ObjectOutputStream oos;	//Object writer
     
-    private JButton jb1;
-    private JButton jb2;
-    private JButton jb3;
-    private JButton jb4;
+    private JButton jb1;	//
+    private JButton jb2;	//Answer
+    private JButton jb3;	//Buttons
+    private JButton jb4;	//
     
+    /**
+     * @param args[0] Server IP
+     * @param args[1] Player Name
+     */
     private boolean connected = false;
     
     public static void main(String[] args) {
@@ -32,41 +40,80 @@ public class TriviaClient extends JFrame implements ActionListener {
         super("Trivia - Client");
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        setSize(500, 500);
+        setSize(600, 500);
         setVisible(true);
+        
+        JPanel jpMain = new JPanel(new BorderLayout());	//Separates chat and game
+        JPanel jpGame = new JPanel(new BorderLayout());	//Holds the game components see GUI mockup on trello
+        JPanel jpLives = new JPanel(new FlowLayout());	//Holds lives
+        JPanel jpAns = new JPanel(new GridLayout(0,1));	//Hold answer buttons
+        JPanel jpQues = new JPanel(new BorderLayout());	//Holds question
+        JPanel jpChat = new JPanel(new BorderLayout());	//Holds chat contents
+        JPanel jpTextIn = new JPanel(new FlowLayout());	//Holds chat entry 
         
         server = _server;
         name = _name;
         
+        jtQues = new JTextArea("");
+        	Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, 40);
+        	jtQues.setBackground(Color.LIGHT_GRAY);
+        	jtQues.setLineWrap(true);
+        	jtQues.setWrapStyleWord(true);
+        	jtQues.setFont(largeFont);
+    		jtQues.setRows(4);
+    		jtQues.setEditable(false);
+        
         jtaStream = new JTextArea();
+        jtaStream.setColumns(20);
         jtaStream.setEditable(false);
-        add(jtaStream);
+        jtaStream.setWrapStyleWord(true);
+        jtaStream.setLineWrap(true);
+        jpChat.add(jtaStream, BorderLayout.CENTER);
+        jpChat.add(jpTextIn, BorderLayout.SOUTH);
         jtaStream.append("Trivia Client starting...");
         
         addWindowListener(
-            new WindowAdapter() {
-                public void windowClosing(WindowEvent e) {
+            new WindowAdapter(){public void windowClosing(WindowEvent e) 
+                {
                     shutdown();
-                }
-        });
-        
-        JPanel jpSouth = new JPanel();
+                }});
         
         jb1 = new JButton("1");
             jb1.addActionListener(this);
-            jpSouth.add(jb1);
+            jpAns.add(jb1);
         jb2 = new JButton("2");
             jb2.addActionListener(this);
-            jpSouth.add(jb2);
+            jpAns.add(jb2);
         jb3 = new JButton("3");
             jb3.addActionListener(this);
-            jpSouth.add(jb3);
+            jpAns.add(jb3);
         jb4 = new JButton("4");
             jb4.addActionListener(this);
-            jpSouth.add(jb4);
+            jpAns.add(jb4);
         disableButtons();
         
-        add(jpSouth, BorderLayout.SOUTH);
+    	try 
+    	{
+			BufferedImage lightHeart = ImageIO.read(new File("Light.png"));
+			BufferedImage darkHeart = ImageIO.read(new File("Dark.png"));
+			
+			for(int i = 0;i<3;i++) {jpLives.add(new JLabel(new ImageIcon(lightHeart)));}
+		} 
+    	catch (IOException e1) 
+    	{
+			//e1.printStackTrace();
+			System.out.println("Couldn't read icons");
+		}
+
+        jpGame.add(jtQues, BorderLayout.NORTH); 
+        jpGame.add(jpLives, BorderLayout.SOUTH);
+        jpGame.add(jpAns, BorderLayout.CENTER); 
+       
+        jpMain.add(jpGame, BorderLayout.CENTER);
+        jpMain.add(jpChat, BorderLayout.EAST);
+          
+        add(jpMain);
+        jpMain.repaint();
         
         connect();
     }
@@ -110,11 +157,11 @@ public class TriviaClient extends JFrame implements ActionListener {
                     
                     if (in instanceof Question) {
                         Question q = (Question)in;
-                        jtaStream.append("\n" + q.getQuestion() + "\n");
-                        jtaStream.append(q.getAnswer1() + "\n");
-                        jtaStream.append(q.getAnswer2() + "\n");
-                        jtaStream.append(q.getAnswer3() + "\n");
-                        jtaStream.append(q.getAnswer4());
+                        jtQues.setText(q.getQuestion());
+                        jb1.setText(q.getAnswer1());
+                        jb2.setText(q.getAnswer2());
+                        jb3.setText(q.getAnswer3());
+                        jb4.setText(q.getAnswer4());
                         enableButtons();
                     } else if (in instanceof Message) {
                     

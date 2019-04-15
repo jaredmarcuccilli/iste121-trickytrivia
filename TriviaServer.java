@@ -30,6 +30,7 @@ public class TriviaServer extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         setSize(500, 400);
+        setResizable(false);
         setVisible(true);
         
         jtaStream = new JTextArea();

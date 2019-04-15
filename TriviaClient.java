@@ -41,6 +41,7 @@ public class TriviaClient extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         setSize(600, 500);
+        setResizable(false);
         setVisible(true);
         
         JPanel jpMain = new JPanel(new BorderLayout());	// Separates chat and game

@@ -133,21 +133,25 @@ public class TriviaClient extends JFrame implements ActionListener {
         try {
             if (ae.getSource() == jb1) {
                 chosenAnswer = 1;
+                jb1.setBackground(Color.BLUE);
                 disableButtons();
                 oos.writeObject(new Answer(1));
                 answered = true;
             } else if (ae.getSource() == jb2) {
                 chosenAnswer = 2;
+                jb2.setBackground(Color.BLUE);
                 disableButtons();
                 oos.writeObject(new Answer(2));
                 answered = true;
             } else if (ae.getSource() == jb3) {
                 chosenAnswer = 3;
+                jb3.setBackground(Color.BLUE);
                 disableButtons();
                 oos.writeObject(new Answer(3));
                 answered = true;
             } else if (ae.getSource() == jb4) {
                 chosenAnswer = 4;
+                jb4.setBackground(Color.BLUE);
                 disableButtons();
                 oos.writeObject(new Answer(4));
                 answered = true;

@@ -29,13 +29,15 @@ public class TriviaServer extends JFrame implements ActionListener {
         super("Trivia - Server");
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        setSize(500, 400);
+        setSize(600, 400);
         setResizable(false);
-        setVisible(true);
         
         jtaStream = new JTextArea();
         jtaStream.setEditable(false);
-        add(jtaStream);
+        jtaStream.setLineWrap(true);
+        jtaStream.setWrapStyleWord(true);
+        JScrollPane jspStream = new JScrollPane(jtaStream);
+        add(jspStream);
         jtaStream.append("Trivia Server starting...");
         
         addWindowListener(
@@ -50,6 +52,8 @@ public class TriviaServer extends JFrame implements ActionListener {
             jbSendQuestion.addActionListener(this);
             jpSouth.add(jbSendQuestion);
         add(jpSouth, BorderLayout.SOUTH);
+        
+        setVisible(true);
         
         try {
             FileInputStream fis = new FileInputStream("questions.txt");

@@ -16,6 +16,11 @@ public class TriviaClient extends JFrame implements ActionListener {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     
+    private JButton jb1;
+    private JButton jb2;
+    private JButton jb3;
+    private JButton jb4;
+    
     private boolean connected = false;
     
     public static void main(String[] args) {
@@ -34,6 +39,7 @@ public class TriviaClient extends JFrame implements ActionListener {
         name = _name;
         
         jtaStream = new JTextArea();
+        jtaStream.setEditable(false);
         add(jtaStream);
         jtaStream.append("Trivia Client starting...");
         
@@ -44,11 +50,45 @@ public class TriviaClient extends JFrame implements ActionListener {
                 }
         });
         
+        JPanel jpSouth = new JPanel();
+        
+        jb1 = new JButton("1");
+            jb1.addActionListener(this);
+            jpSouth.add(jb1);
+        jb2 = new JButton("2");
+            jb2.addActionListener(this);
+            jpSouth.add(jb2);
+        jb3 = new JButton("3");
+            jb3.addActionListener(this);
+            jpSouth.add(jb3);
+        jb4 = new JButton("4");
+            jb4.addActionListener(this);
+            jpSouth.add(jb4);
+        disableButtons();
+        
+        add(jpSouth, BorderLayout.SOUTH);
+        
         connect();
     }
     
     public void actionPerformed(ActionEvent ae) {
-    
+        try {
+            if (ae.getSource() == jb1) {
+                disableButtons();
+                oos.writeObject(new Answer(1));
+            } else if (ae.getSource() == jb2) {
+                disableButtons();
+                oos.writeObject(new Answer(2));
+            } else if (ae.getSource() == jb3) {
+                disableButtons();
+                oos.writeObject(new Answer(3));
+            } else if (ae.getSource() == jb4) {
+                disableButtons();
+                oos.writeObject(new Answer(4));
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
     
     public class TriviaClientThread extends Thread implements Serializable {
@@ -75,12 +115,17 @@ public class TriviaClient extends JFrame implements ActionListener {
                         jtaStream.append(q.getAnswer2() + "\n");
                         jtaStream.append(q.getAnswer3() + "\n");
                         jtaStream.append(q.getAnswer4());
+                        enableButtons();
+                    } else if (in instanceof Message) {
+                    
+                    } else if (in instanceof String) {
+                        jtaStream.append("\n" + (String)in);
                     }
+                    //in = ois.readObject();
                 }
             } catch (SocketException se) {
                 // client lost connection to server
                 System.out.println("Lost connection to server");
-                shutdown();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             } catch (ClassNotFoundException cnfe) {
@@ -92,10 +137,9 @@ public class TriviaClient extends JFrame implements ActionListener {
     public void connect() {
         try {
             s = new Socket(server, 16789);
-            
             TriviaClientThread tct = new TriviaClientThread();
             tct.start();
-
+            jtaStream.append("\nConnected to server.");
         } catch (UnknownHostException uhe) {
             jtaStream.append("\nUnknown host: " + server);
             jtaStream.append("\nPlease enter another hostname.");
@@ -124,4 +168,18 @@ public class TriviaClient extends JFrame implements ActionListener {
         }
         System.exit(0);
     }
+    
+    public void enableButtons() {
+        jb1.setEnabled(true);
+        jb2.setEnabled(true);
+        jb3.setEnabled(true);
+        jb4.setEnabled(true);
+    }
+    
+    public void disableButtons() {
+        jb1.setEnabled(false);
+        jb2.setEnabled(false);
+        jb3.setEnabled(false);
+        jb4.setEnabled(false);
+    }    
 }

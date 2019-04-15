@@ -11,12 +11,15 @@ public class TriviaServer extends JFrame implements ActionListener {
     private JTextArea jtaStream;
     
     private Vector<Thread> threads = new Vector<Thread>();
+    private Vector<Player> players = new Vector<Player>();
     private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
-    private static final int PLAYERS = 1; // this should be set in the gui
+    private static final int PLAYERS = 2; // this should be set in the gui
     private Question currentQuestion;
     private int currentQuestionNo;
     private int answersIn;
     private BufferedReader questionBr = null;
+    
+    private JButton jbSendQuestion;
     
     public static void main(String[] args) {
         new TriviaServer();
@@ -26,10 +29,11 @@ public class TriviaServer extends JFrame implements ActionListener {
         super("Trivia - Server");
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        setSize(500, 500);
+        setSize(500, 400);
         setVisible(true);
         
         jtaStream = new JTextArea();
+        jtaStream.setEditable(false);
         add(jtaStream);
         jtaStream.append("Trivia Server starting...");
         
@@ -39,6 +43,12 @@ public class TriviaServer extends JFrame implements ActionListener {
                     shutdown();
                 }
         });
+        
+        JPanel jpSouth = new JPanel();
+        jbSendQuestion = new JButton("Send Next Question");
+            jbSendQuestion.addActionListener(this);
+            jpSouth.add(jbSendQuestion);
+        add(jpSouth, BorderLayout.SOUTH);
         
         try {
             FileInputStream fis = new FileInputStream("questions.txt");
@@ -64,32 +74,24 @@ public class TriviaServer extends JFrame implements ActionListener {
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
-        
-        currentQuestion = getNewQuestion();
-        sendClients(currentQuestion);
     }
     
     public void actionPerformed(ActionEvent ae) {
-    
+        if (ae.getSource() == jbSendQuestion) {
+            currentQuestion = getNewQuestion();
+            sendClients(currentQuestion);
+            jtaStream.append("\n" + currentQuestion.toString()); 
+        }
     }
     
     public class TriviaServerThread extends Thread implements Serializable {
         private Socket s;
         private ObjectInputStream ois;
         private ObjectOutputStream oos;
-        private String name;
-        private int score;
+        private Player thisPlayer;
         
         public TriviaServerThread(Socket _s) {
             s = _s;
-        }
-        
-        public String getPlayerName() {
-            return name;
-        }
-        
-        public int getPlayerScore() {
-            return score;
         }
         
         public void run() {
@@ -97,8 +99,9 @@ public class TriviaServer extends JFrame implements ActionListener {
                 ois = new ObjectInputStream(s.getInputStream());
                 oos = new ObjectOutputStream(s.getOutputStream());
                 allObjectOutputStreams.add(oos);
-                name = (String)ois.readObject();
-                jtaStream.append("\n" + name + " joined the server");
+                thisPlayer = new Player((String)ois.readObject());
+                players.add(thisPlayer);
+                jtaStream.append("\n" + thisPlayer.getPlayerName() + " joined the server");
                 
                 while (true) {
                     Object in = ois.readObject();
@@ -107,9 +110,16 @@ public class TriviaServer extends JFrame implements ActionListener {
                         answersIn++;
                         if (a.getPlayerAnswerNum() == currentQuestion.getCorrectAnswerNum()) {
                             // correct answer, update score
+                            thisPlayer.addPlayerScore(10);
+                            jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is correct. Their score is: " + thisPlayer.getPlayerScore());
+                            oos.writeObject("You got the question right. Your score is: " + thisPlayer.getPlayerScore());
                         } else {
                             // incorrect answer, update score
+                            thisPlayer.subtractPlayerScore(10);
+                            jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is incorrect. Their score is: " + thisPlayer.getPlayerScore());
+                            oos.writeObject("You got the question wrong. Your score is: " + thisPlayer.getPlayerScore());
                         }
+                        
                         if (answersIn == threads.size()) {
                             // trigger move on to next question, will also happen if timer runs out
                         }
@@ -117,10 +127,17 @@ public class TriviaServer extends JFrame implements ActionListener {
                     
                     }
                 }
+            } catch (SocketException se) {
+                // server lost connection to client
+                jtaStream.append("\nLost connection to: " + thisPlayer.getPlayerName());
+                threads.remove(this);
+                players.remove(thisPlayer);
+                allObjectOutputStreams.remove(oos);
             } catch (EOFException eofe) {
                 // server lost connection to client
-                jtaStream.append("\nLost connection to: " + name);
+                jtaStream.append("\nLost connection to: " + thisPlayer.getPlayerName());
                 threads.remove(this);
+                players.remove(thisPlayer);
                 allObjectOutputStreams.remove(oos);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
@@ -149,7 +166,6 @@ public class TriviaServer extends JFrame implements ActionListener {
     
     // Return a Question object
     public Question getNewQuestion() {
-        
         String[] questionElements = new String[6];
         
         try {

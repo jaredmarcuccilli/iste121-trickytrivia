@@ -8,8 +8,10 @@ import javax.swing.text.*;
 import java.io.Serializable;
 
 public class TriviaServer extends JFrame implements ActionListener {
-    private ArrayList<Thread> threads = new ArrayList<Thread>();
-    private static final int PLAYERS = 4;
+    private Vector<Thread> threads = new Vector<Thread>();
+    private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
+    private static final int PLAYERS = 2; // this should be set in the gui
+    private Question currentQuestion;
     
     public static void main(String[] args) {
         new TriviaServer();
@@ -18,6 +20,8 @@ public class TriviaServer extends JFrame implements ActionListener {
     public TriviaServer() {
         super("Trivia - Server");
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+        setSize(500, 500);
         setVisible(true);
         
         addWindowListener(
@@ -42,6 +46,10 @@ public class TriviaServer extends JFrame implements ActionListener {
         }
         
         System.out.println("Starting the game!");
+        for (int i = 0; i < 10; i++) { // 10 questions for testing
+            currentQuestion = getQuestion();
+            sendClients(currentQuestion);
+        }
     }
     
     public void actionPerformed(ActionEvent ae) {
@@ -62,6 +70,7 @@ public class TriviaServer extends JFrame implements ActionListener {
             try {
                 ois = new ObjectInputStream(s.getInputStream());
                 oos = new ObjectOutputStream(s.getOutputStream());
+                allObjectOutputStreams.add(oos);
                 
                 name = (String)ois.readObject();
             } catch (IOException ioe) {
@@ -76,6 +85,18 @@ public class TriviaServer extends JFrame implements ActionListener {
     public void shutdown() {
         System.out.println("Server shutting down...");
         System.exit(0);
+    }
+    
+    // Sent object to all clients
+    public void sendClients(Object _o) {
+        for (ObjectOutputStream oos : allObjectOutputStreams) {
+            try {
+                oos.writeObject(_o);
+                System.out.println("Sent the following object to " + threads.size() + " clients: " + _o.toString());
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
     }
     
     // Return a Question object

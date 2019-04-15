@@ -60,7 +60,7 @@ public class TriviaClient extends JFrame implements ActionListener {
         name = _name;
 
         jtQues = new JTextArea("");
-        Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, 40);
+        Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, 20);
         jtQues.setBackground(Color.LIGHT_GRAY);
         jtQues.setLineWrap(true);
         jtQues.setWrapStyleWord(true);
@@ -184,45 +184,78 @@ public class TriviaClient extends JFrame implements ActionListener {
                         jb3.setText(q.getAnswer3());
                         jb4.setText(q.getAnswer4());
                         enableButtons();
+                        
+                        jb1.setBackground(null);
+                        jb2.setBackground(null);
+                        jb3.setBackground(null);
+                        jb4.setBackground(null);
+                        
                     } else if (in instanceof Message) {
                         Message m = (Message) in;
                         jtaStream.append("\n" + m.getSource() + ": " + m.getMessage());
                     } else if (in instanceof String) {
                         jtaStream.append("\n" + (String) in);
                     } else if (in instanceof Integer) {
+                        System.out.println("received correct answer");
                         int correctAnswer = (Integer) in;
+                        System.out.println(correctAnswer);
 
                         switch (chosenAnswer) {
                         case 1:
                             jb1.setBackground(Color.RED);
+                            jb1.setOpaque(true);
+
+                            repaint();
                             break;
                         case 2:
                             jb2.setBackground(Color.RED);
-
+                            jb2.setOpaque(true);
+                            repaint();
                             break;
                         case 3:
                             jb3.setBackground(Color.RED);
+                            jb3.setOpaque(true);
+                            repaint();
+
                             break;
                         case 4:
                             jb4.setBackground(Color.RED);
+                            jb4.setOpaque(true);
+                            repaint();
+
                             break;
                         default:
                             break;
                         }
 
                         //if(chosenAnswer == correctAnswer) {
-                            switch (chosenAnswer) {
+                            switch (correctAnswer) {
                             case 1:
                                 jb1.setBackground(Color.GREEN);
+                                jb1.setOpaque(true);
+                                repaint();
+
                                 break;
                             case 2:
                                 jb2.setBackground(Color.GREEN);
+                                jb2.setOpaque(true);
+
+                                repaint();
+
                                 break;
                             case 3:
                                 jb3.setBackground(Color.GREEN);
+                                jb3.setOpaque(true);
+
+                                repaint();
+
                                 break;
                             case 4:
                                 jb4.setBackground(Color.GREEN);
+                                jb4.setOpaque(true);
+
+                                repaint();
+
                                 break;
                             default:
                                 break;

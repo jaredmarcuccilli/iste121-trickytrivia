@@ -31,10 +31,6 @@ public class Questions implements ActionListener{
 	int correctAnswer = -1;
 	int userAnswer = -1;
 
-	//starts the countdown timer for jProgress Bar. Updates bar every 10 miliseconds.
-
-
-
 	/**
 	 * Constructor
 	 */
@@ -51,10 +47,10 @@ public class Questions implements ActionListener{
 		jpQuestion.add(jlQuestion);
 		Dimension questionSize = new Dimension();
 		questionSize.setSize(400, 50);
-	//jlQuestion.setFont(new Font(24));
+		//jlQuestion.setFont(new Font(24));
 		jlQuestion.setPreferredSize(questionSize);
 		frame.add(jpQuestion, BorderLayout.NORTH);		
-		
+
 		//-Center- Answers
 		JPanel jpAnswers = new JPanel();
 		jpAnswers.setLayout(new GridLayout(4,0));
@@ -85,6 +81,18 @@ public class Questions implements ActionListener{
 		jpTimeRemaining.add(jlTimeRemainingLabel);
 		jpTimeRemaining.add(jpbRemaining);
 		frame.add(jpTimeRemaining, BorderLayout.SOUTH);
+		
+		//-East- Leaderboard
+		JPanel jpLeaderboard = new JPanel();
+		jpLeaderboard.setLayout(new GridLayout(4,0));
+		frame.add(jpLeaderboard, BorderLayout.EAST);
+		//replace this label with actual players
+		JLabel jlTitle = new JLabel("Leaderboard");
+		jlTitle.setFont(new Font("Serif", Font.BOLD, 36));
+		JLabel jlPlayer = new JLabel("Sample Player Score: 0");
+		
+		jpLeaderboard.add(jlTitle);
+		jpLeaderboard.add(jlPlayer);
 
 		frame.pack();
 		frame.setVisible(true);
@@ -98,7 +106,7 @@ public class Questions implements ActionListener{
 		setAnswer4("test4");
 		startTimer();
 		//reset();
-		
+
 	}
 
 	/**
@@ -123,7 +131,7 @@ public class Questions implements ActionListener{
 		}
 	}
 
-	
+
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == jbAnswer1) {
 			System.out.println("answer 1 chosen");
@@ -151,28 +159,28 @@ public class Questions implements ActionListener{
 			System.out.println(checkAnswer());
 		}
 	}
-	
+
 	public void startTimer() {
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new UpdateBar(), 0, 10);
 		//END TIMER COUNTDOWN
 	}
-	
+
 	public void disableButtons() {
 		jbAnswer1.setEnabled(false);
 		jbAnswer2.setEnabled(false);
 		jbAnswer3.setEnabled(false);
 		jbAnswer4.setEnabled(false);
 	}
-	
+
 	public boolean checkAnswer() {
 		if (userAnswer == correctAnswer) {
-		return true;
+			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public void reset() {
 		userAnswer = -1;
 		jbAnswer1.setEnabled(true);

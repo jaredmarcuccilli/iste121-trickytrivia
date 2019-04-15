@@ -13,6 +13,7 @@ import javax.swing.text.*;
 public class TriviaClient extends JFrame implements ActionListener {
     private JTextArea jtaStream;
     private JTextArea jtQues;
+    private JTextField jtfChat;
     
     private String name;
     private String server;
@@ -24,6 +25,8 @@ public class TriviaClient extends JFrame implements ActionListener {
     private JButton jb2;	// Answer
     private JButton jb3;	// Buttons
     private JButton jb4;	//
+    
+    private JButton jbSend;
     
     /**
      * @param args[0] Server IP
@@ -50,7 +53,7 @@ public class TriviaClient extends JFrame implements ActionListener {
         JPanel jpAns = new JPanel(new GridLayout(0,1));	// Hold answer buttons
         JPanel jpQues = new JPanel(new BorderLayout());	// Holds question
         JPanel jpChat = new JPanel(new BorderLayout());	// Holds chat contents
-        JPanel jpTextIn = new JPanel(new FlowLayout());	// Holds chat entry 
+        JPanel jpTextIn = new JPanel(new BorderLayout());	// Holds chat entry 
         
         server = _server;
         name = _name;
@@ -69,8 +72,18 @@ public class TriviaClient extends JFrame implements ActionListener {
         jtaStream.setEditable(false);
         jtaStream.setWrapStyleWord(true);
         jtaStream.setLineWrap(true);
+        
+        jtfChat = new JTextField();
+        jtfChat.addActionListener(this);
+        jpTextIn.add(jtfChat);
+        
+        jbSend = new JButton("Send");
+        jbSend.addActionListener(this);
+        jpTextIn.add(jbSend, BorderLayout.EAST);
+        
         jpChat.add(jtaStream, BorderLayout.CENTER);
         jpChat.add(jpTextIn, BorderLayout.SOUTH);
+        
         jtaStream.append("Trivia Client starting...");
         
         addWindowListener(
@@ -130,6 +143,10 @@ public class TriviaClient extends JFrame implements ActionListener {
             } else if (ae.getSource() == jb4) {
                 disableButtons();
                 oos.writeObject(new Answer(4));
+            } else if (ae.getSource() == jbSend || ae.getSource() == jtfChat) {
+                // send chat message
+                oos.writeObject(new Message(name, jtfChat.getText()));
+                jtfChat.setText("");
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();

@@ -126,6 +126,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                         }
                     } else if (in instanceof Message) {
                         Message m = (Message)in;
+                        jtaStream.append("\n" + m.toString());
                         sendClients(m);
                     }
                 }

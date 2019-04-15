@@ -9,11 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
@@ -43,12 +46,16 @@ public class Questions implements ActionListener{
 
 		//-North- Question
 		JPanel jpQuestion = new JPanel();
-		JLabel jlQuestion = new JLabel("Question: " + "TEST QUESTION");
+		JLabel jlQuestionTitle = new JLabel("Question:");
+		jlQuestionTitle.setFont(new Font("Serif", Font.BOLD, 36));
+		JLabel jlQuestion = new JLabel("TEST QUESTION");
+		jpQuestion.add(jlQuestionTitle);
 		jpQuestion.add(jlQuestion);
 		Dimension questionSize = new Dimension();
 		questionSize.setSize(400, 50);
 		//jlQuestion.setFont(new Font(24));
 		jlQuestion.setPreferredSize(questionSize);
+		frame.setLayout(new BorderLayout(10,10));
 		frame.add(jpQuestion, BorderLayout.NORTH);		
 
 		//-Center- Answers
@@ -67,7 +74,6 @@ public class Questions implements ActionListener{
 
 		//-South- Time Remaining
 		JPanel jpTimeRemaining = new JPanel();
-
 		JLabel jlTimeRemainingLabel = new JLabel("Time Remaining");		
 
 		Dimension jpbSize = new Dimension();
@@ -84,16 +90,29 @@ public class Questions implements ActionListener{
 		
 		//-East- Leaderboard
 		JPanel jpLeaderboard = new JPanel();
+		
 		jpLeaderboard.setLayout(new GridLayout(4,0));
 		frame.add(jpLeaderboard, BorderLayout.EAST);
 		//replace this label with actual players
 		JLabel jlTitle = new JLabel("Leaderboard");
 		jlTitle.setFont(new Font("Serif", Font.BOLD, 36));
 		JLabel jlPlayer = new JLabel("Sample Player Score: 0");
+		jlPlayer.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 		
 		jpLeaderboard.add(jlTitle);
 		jpLeaderboard.add(jlPlayer);
-
+		
+		//-West- Chat
+		JPanel jpChat = new JPanel();
+		JTextArea jtaChatbox = new JTextArea("sample chat messagebox");
+		JLabel jlChatTitle = new JLabel("Chat");
+		jlChatTitle.setFont(new Font("Serif", Font.BOLD, 36));
+		JButton jbSend = new JButton("Send");
+		jpChat.setLayout(new BorderLayout(5,10));
+		jpChat.add(jlChatTitle, BorderLayout.NORTH);
+		jpChat.add(jtaChatbox, BorderLayout.CENTER);
+		jpChat.add(jbSend, BorderLayout.SOUTH);
+		frame.add(jpChat, BorderLayout.WEST);
 		frame.pack();
 		frame.setVisible(true);
 

@@ -45,7 +45,7 @@ public class TriviaClient extends JFrame implements ActionListener {
         
         JPanel jpMain = new JPanel(new BorderLayout());	// Separates chat and game
         JPanel jpGame = new JPanel(new BorderLayout());	// Holds the game components see GUI mockup on trello
-        JPanel jpLives = new JPanel(new FlowLayout());	// Holds lives
+        // JPanel jpLives = new JPanel(new FlowLayout());	// Holds lives
         JPanel jpAns = new JPanel(new GridLayout(0,1));	// Hold answer buttons
         JPanel jpQues = new JPanel(new BorderLayout());	// Holds question
         JPanel jpChat = new JPanel(new BorderLayout());	// Holds chat contents
@@ -96,14 +96,14 @@ public class TriviaClient extends JFrame implements ActionListener {
 			BufferedImage lightHeart = ImageIO.read(new File("Light.png"));
 			BufferedImage darkHeart = ImageIO.read(new File("Dark.png"));
 			
-			for(int i = 0;i<3;i++) {jpLives.add(new JLabel(new ImageIcon(lightHeart)));}
+			// for(int i = 0;i<3;i++) {jpLives.add(new JLabel(new ImageIcon(lightHeart)));}
 		} catch (IOException e1) {
 			//e1.printStackTrace();
 			System.out.println("Couldn't read icons");
 		}
 
         jpGame.add(jtQues, BorderLayout.NORTH); 
-        jpGame.add(jpLives, BorderLayout.SOUTH);
+        // jpGame.add(jpLives, BorderLayout.SOUTH);
         jpGame.add(jpAns, BorderLayout.CENTER); 
        
         jpMain.add(jpGame, BorderLayout.CENTER);

@@ -17,7 +17,6 @@ public class TriviaServer extends JFrame implements ActionListener {
     private static final int PLAYERS = 2; // this should be set in the gui
     private Question currentQuestion;
     private int currentQuestionNo;
-    private int answersIn;
     private BufferedReader questionBr = null;
     private boolean serverOpen = true;
     
@@ -159,7 +158,6 @@ public class TriviaServer extends JFrame implements ActionListener {
                     Object in = ois.readObject();
                     if (in instanceof Answer) {
                         Answer a = (Answer)in;
-                        answersIn++;
                         if (a.getPlayerAnswerNum() == currentQuestion.getCorrectAnswerNum()) {
                             // correct answer, update score
                             thisPlayer.addPlayerScore(10);
@@ -175,10 +173,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is incorrect. Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                         }
-                        
-                        if (answersIn == threads.size()) {
-                            // trigger move on to next question, will also happen if timer runs out
-                        }
+
                     } else if (in instanceof Message) {
                         Message m = (Message)in;
                         jtaStream.append("\n" + m.toString());

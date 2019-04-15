@@ -18,11 +18,11 @@ public class TriviaClient extends JFrame implements ActionListener {
     private String server;
     private Socket s;
     private ObjectInputStream ois;
-    private ObjectOutputStream oos;	//Object writer
+    private ObjectOutputStream oos;	// Object writer
     
     private JButton jb1;	//
-    private JButton jb2;	//Answer
-    private JButton jb3;	//Buttons
+    private JButton jb2;	// Answer
+    private JButton jb3;	// Buttons
     private JButton jb4;	//
     
     /**
@@ -43,25 +43,25 @@ public class TriviaClient extends JFrame implements ActionListener {
         setSize(600, 500);
         setVisible(true);
         
-        JPanel jpMain = new JPanel(new BorderLayout());	//Separates chat and game
-        JPanel jpGame = new JPanel(new BorderLayout());	//Holds the game components see GUI mockup on trello
-        JPanel jpLives = new JPanel(new FlowLayout());	//Holds lives
-        JPanel jpAns = new JPanel(new GridLayout(0,1));	//Hold answer buttons
-        JPanel jpQues = new JPanel(new BorderLayout());	//Holds question
-        JPanel jpChat = new JPanel(new BorderLayout());	//Holds chat contents
-        JPanel jpTextIn = new JPanel(new FlowLayout());	//Holds chat entry 
+        JPanel jpMain = new JPanel(new BorderLayout());	// Separates chat and game
+        JPanel jpGame = new JPanel(new BorderLayout());	// Holds the game components see GUI mockup on trello
+        JPanel jpLives = new JPanel(new FlowLayout());	// Holds lives
+        JPanel jpAns = new JPanel(new GridLayout(0,1));	// Hold answer buttons
+        JPanel jpQues = new JPanel(new BorderLayout());	// Holds question
+        JPanel jpChat = new JPanel(new BorderLayout());	// Holds chat contents
+        JPanel jpTextIn = new JPanel(new FlowLayout());	// Holds chat entry 
         
         server = _server;
         name = _name;
         
         jtQues = new JTextArea("");
-        	Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, 40);
-        	jtQues.setBackground(Color.LIGHT_GRAY);
-        	jtQues.setLineWrap(true);
-        	jtQues.setWrapStyleWord(true);
-        	jtQues.setFont(largeFont);
-    		jtQues.setRows(4);
-    		jtQues.setEditable(false);
+            Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, 40);
+        	   jtQues.setBackground(Color.LIGHT_GRAY);
+        	   jtQues.setLineWrap(true);
+        	   jtQues.setWrapStyleWord(true);
+        	   jtQues.setFont(largeFont);
+    		   jtQues.setRows(4);
+    		   jtQues.setEditable(false);
         
         jtaStream = new JTextArea();
         jtaStream.setColumns(20);
@@ -92,15 +92,12 @@ public class TriviaClient extends JFrame implements ActionListener {
             jpAns.add(jb4);
         disableButtons();
         
-    	try 
-    	{
+    	try {
 			BufferedImage lightHeart = ImageIO.read(new File("Light.png"));
 			BufferedImage darkHeart = ImageIO.read(new File("Dark.png"));
 			
 			for(int i = 0;i<3;i++) {jpLives.add(new JLabel(new ImageIcon(lightHeart)));}
-		} 
-    	catch (IOException e1) 
-    	{
+		} catch (IOException e1) {
 			//e1.printStackTrace();
 			System.out.println("Couldn't read icons");
 		}

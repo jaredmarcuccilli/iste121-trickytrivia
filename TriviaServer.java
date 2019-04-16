@@ -237,7 +237,7 @@ public class TriviaServer extends JFrame implements ActionListener {
         String[] questionElements = new String[6];
         
         try {
-            questionElements = questionBr.readLine().split(":");
+            questionElements = questionBr.readLine().split("~");
             Question q = new Question(questionElements[0], questionElements[1], questionElements[2], questionElements[3], questionElements[4], questionElements[5]);
             return q;
         } catch (FileNotFoundException fnfe) {

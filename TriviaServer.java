@@ -14,11 +14,12 @@ public class TriviaServer extends JFrame implements ActionListener {
     private Vector<Thread> threads = new Vector<Thread>();
     private Vector<Player> players = new Vector<Player>();
     private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
-    private static final int PLAYERS = 2; // this should be set in the gui
+    private static final int QUESTIONS = 2; // this should be set in the gui
     private Question currentQuestion;
     private int currentQuestionNo;
     private BufferedReader questionBr = null;
     private boolean serverOpen = true;
+    private boolean keepGoing = true;
     
     private JButton jbSendQuestion;
     private JButton jbStartGame;
@@ -65,7 +66,7 @@ public class TriviaServer extends JFrame implements ActionListener {
             jpSouth.add(jbStartGame);
         jbSendQuestion = new JButton("Send Next Question");
             jbSendQuestion.addActionListener(this);
-            jpSouth.add(jbSendQuestion);
+            //jpSouth.add(jbSendQuestion);
         add(jpSouth, BorderLayout.SOUTH);
         
         setVisible(true);
@@ -101,7 +102,9 @@ public class TriviaServer extends JFrame implements ActionListener {
     
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == jbSendQuestion) {
-            sendQuestion();
+            //sendQuestion();
+        } else if (ae.getSource() == jbStartGame) {
+            startGame();
         }
     }
     
@@ -120,6 +123,9 @@ public class TriviaServer extends JFrame implements ActionListener {
                 sendClients(currentQuestion.getCorrectAnswerNum());
                 jpbRemaining.setValue(10000);
                 jbSendQuestion.setEnabled(true);
+                if (keepGoing == false) {
+                    gameOver();
+                }
 				this.cancel();
 			}
 		}
@@ -131,7 +137,11 @@ public class TriviaServer extends JFrame implements ActionListener {
 	}
     
     public void startGame() {
+        jbStartGame.setEnabled(false);
+        jtaStream.append("\nStarting game...");
         serverOpen = false;
+        Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new sendQuestion(), 0, 15000);
     }
     
     public class TriviaServerThread extends Thread implements Serializable {
@@ -221,15 +231,28 @@ public class TriviaServer extends JFrame implements ActionListener {
         }
     }
     
-    public void sendQuestion() {
-        currentQuestionNo++;
-        currentQuestion = getNewQuestion();
-        if (currentQuestion != null) {
-            sendClients(currentQuestion);
-            jtaStream.append("\n" + currentQuestionNo + ". " + currentQuestion.toString());
-            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-        } 
-        startTimer();
+    public void gameOver() {
+        jtaStream.append("\nGame is over!");
+        jpbRemaining.setString("Game is over!");
+    }
+    
+    //public void sendQuestion() {
+    public class sendQuestion extends TimerTask {
+        public void run() {
+            if (keepGoing) {
+                currentQuestionNo++;
+                currentQuestion = getNewQuestion();
+                if (currentQuestion != null) {
+                    sendClients(currentQuestion);
+                    jtaStream.append("\n" + currentQuestionNo + ". " + currentQuestion.toString());
+                    jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+                } 
+                startTimer();
+                if (currentQuestionNo == QUESTIONS) {
+                    keepGoing = false;
+                }
+            }
+        }
     }
     
     // Return a Question object

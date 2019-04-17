@@ -105,14 +105,18 @@ public class TriviaClient extends JFrame implements ActionListener {
 
         jb1 = new JButton("1");
         jb1.addActionListener(this);
+        jb1.setOpaque(true);
         jpAns.add(jb1);
         jb2 = new JButton("2");
+        jb2.setOpaque(true);
         jb2.addActionListener(this);
         jpAns.add(jb2);
         jb3 = new JButton("3");
+        jb3.setOpaque(true);
         jb3.addActionListener(this);
         jpAns.add(jb3);
         jb4 = new JButton("4");
+        jb4.setOpaque(true);
         jb4.addActionListener(this);
         jpAns.add(jb4);
         disableButtons();

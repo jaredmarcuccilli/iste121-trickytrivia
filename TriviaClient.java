@@ -189,6 +189,7 @@ public class TriviaClient extends JFrame implements ActionListener {
 
                     if (in instanceof Question) {
                         startTimer();
+                        enableButtons();
                         answered = false;
                         Question q = (Question) in;
                         jtQues.setText(q.getQuestion());
@@ -212,6 +213,7 @@ public class TriviaClient extends JFrame implements ActionListener {
                         jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                     } else if (in instanceof Integer) {
                         int correctAnswer = (Integer)in;
+                        disableButtons();
                         switch (chosenAnswer) {
                             case 1:
                                 jb1.setBackground(Color.RED);

@@ -14,7 +14,7 @@ public class TriviaServer extends JFrame implements ActionListener {
     private Vector<Thread> threads = new Vector<Thread>();
     private Vector<Player> players = new Vector<Player>();
     private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
-    private static final int QUESTIONS = 2; // this should be set in the gui
+    private static final int QUESTIONS = 20; // this should be set in the gui
     private Question currentQuestion;
     private int currentQuestionNo;
     private BufferedReader questionBr = null;

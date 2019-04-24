@@ -21,7 +21,6 @@ public class TriviaServer extends JFrame implements ActionListener {
     private boolean serverOpen = true;
     private boolean keepGoing = true;
     
-    private JButton jbSendQuestion;
     private JButton jbStartGame;
     private JProgressBar jpbRemaining = new JProgressBar();
     
@@ -64,9 +63,7 @@ public class TriviaServer extends JFrame implements ActionListener {
         jbStartGame = new JButton("Start Game!");
             jbStartGame.addActionListener(this);
             jpSouth.add(jbStartGame);
-        jbSendQuestion = new JButton("Send Next Question");
-            jbSendQuestion.addActionListener(this);
-            //jpSouth.add(jbSendQuestion);
+
         add(jpSouth, BorderLayout.SOUTH);
         
         setVisible(true);
@@ -101,16 +98,13 @@ public class TriviaServer extends JFrame implements ActionListener {
     }
     
     public void actionPerformed(ActionEvent ae) {
-        if (ae.getSource() == jbSendQuestion) {
-            //sendQuestion();
-        } else if (ae.getSource() == jbStartGame) {
+        if (ae.getSource() == jbStartGame) {
             startGame();
         }
     }
     
     public class UpdateBar extends TimerTask {
 		public void run() {
-            jbSendQuestion.setEnabled(false);
 			if(jpbRemaining.getValue() > 0) {
 				jpbRemaining.setValue(jpbRemaining.getValue() - 10);
 				// Changing printed value of progress bar
@@ -122,7 +116,6 @@ public class TriviaServer extends JFrame implements ActionListener {
 				jpbRemaining.setString("Time's up!");
                 sendClients(currentQuestion.getCorrectAnswerNum());
                 jpbRemaining.setValue(10000);
-                jbSendQuestion.setEnabled(true);
                 if (keepGoing == false) {
                     gameOver();
                 }
@@ -239,7 +232,6 @@ public class TriviaServer extends JFrame implements ActionListener {
         jpbRemaining.setString("Game is over!");
     }
     
-    //public void sendQuestion() {
     public class sendQuestion extends TimerTask {
         public void run() {
             if (keepGoing) {
@@ -271,7 +263,6 @@ public class TriviaServer extends JFrame implements ActionListener {
         } catch (IOException ioe) {
          
         } catch (NullPointerException npe) {
-            jbSendQuestion.setEnabled(false);
             jtaStream.append("\nReached end of question file");
             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         }

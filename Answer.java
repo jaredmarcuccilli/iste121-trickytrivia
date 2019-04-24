@@ -10,4 +10,8 @@ public class Answer implements Serializable {
     public int getPlayerAnswerNum() {
         return number;
     }
+    
+    public void setPlayerAnswerNum(int _n) {
+        number = _n;
+    }
 }

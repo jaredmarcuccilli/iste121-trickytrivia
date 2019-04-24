@@ -173,15 +173,18 @@ public class TriviaServer extends JFrame implements ActionListener {
                             thisPlayer.addPlayerScore(jpbRemaining.getValue()/100);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + " in  " + (10 - jpbRemaining.getValue()/1000) + " seconds, which is correct. Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+                            a.setPlayerAnswerNum(0);
                         } else if (a.getPlayerAnswerNum() == 0) {
                             thisPlayer.subtractPlayerScore(10);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " didn't answer in time! Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+                            a.setPlayerAnswerNum(0);
                         } else {
                             // incorrect answer, update score
                             thisPlayer.subtractPlayerScore(10);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is incorrect. Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+                            a.setPlayerAnswerNum(0);
                         }
 
                     } else if (in instanceof Message) {

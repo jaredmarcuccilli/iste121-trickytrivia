@@ -169,9 +169,9 @@ public class TriviaServer extends JFrame implements ActionListener {
                     if (in instanceof Answer) {
                         Answer a = (Answer)in;
                         if (a.getPlayerAnswerNum() == currentQuestion.getCorrectAnswerNum()) {
-                            // correct answer, update score
-                            thisPlayer.addPlayerScore(10);
-                            jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is correct. Their score is: " + thisPlayer.getPlayerScore());
+                            // On correct answer, add score to player based on the time they answered
+                            thisPlayer.addPlayerScore(jpbRemaining.getValue()/100);
+                            jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + " in  " + (10 - jpbRemaining.getValue()/1000) + " seconds, which is correct. Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                         } else if (a.getPlayerAnswerNum() == 0) {
                             thisPlayer.subtractPlayerScore(10);

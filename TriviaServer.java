@@ -44,12 +44,12 @@ public class TriviaServer extends JFrame implements ActionListener {
         jtaStream.append("Trivia Server starting...");
         
         Dimension jpbSize = new Dimension();
-		jpbSize.setSize(500, 25);
-		jpbRemaining.setPreferredSize(jpbSize);
-		jpbRemaining.setMaximum(10000); //TIME TO ANSWER IN MILISECONDS
-		jpbRemaining.setMinimum(0);
-		jpbRemaining.setValue(10000);
-		jpbRemaining.setStringPainted(true);
+		  jpbSize.setSize(500, 25);
+		  jpbRemaining.setPreferredSize(jpbSize);
+		  jpbRemaining.setMaximum(10000); //TIME TO ANSWER IN MILISECONDS
+		  jpbRemaining.setMinimum(0);
+		  jpbRemaining.setValue(10000);
+		  jpbRemaining.setStringPainted(true);
         add(jpbRemaining, BorderLayout.NORTH);
         
         addWindowListener(

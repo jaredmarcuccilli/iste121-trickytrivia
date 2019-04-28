@@ -16,7 +16,6 @@ public class TriviaClient extends JFrame implements ActionListener {
     private boolean answered = false;
 
     private String name;
-    private String server;
     private Socket s;
     private ObjectInputStream ois;
     private ObjectOutputStream oos; // Object writer
@@ -39,11 +38,10 @@ public class TriviaClient extends JFrame implements ActionListener {
     private boolean connected = false;
 
     public static void main(String[] args) {
-
-        new TriviaClient(args[0], args[1]);
+        new TriviaClient();
     }
 
-    public TriviaClient(String _server, String _name) {
+    public TriviaClient() {
         super("Tricky Trivia - Client");
         setLayout(new BorderLayout());
         setSize(600, 300);
@@ -65,9 +63,6 @@ public class TriviaClient extends JFrame implements ActionListener {
 		jpbRemaining.setValue(10000);
 		jpbRemaining.setStringPainted(true);
         jpGame.add(jpbRemaining, BorderLayout.NORTH);
-
-        server = _server;
-        name = _name;
 
         jtQues = new JTextArea("");
         Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, 20);
@@ -132,7 +127,36 @@ public class TriviaClient extends JFrame implements ActionListener {
                 shutdown();
             }
         });
-
+        
+        JTextField username = new JTextField();
+        JTextField server = new JTextField();
+        
+        Object[] message = {
+                "Welcome to Tricky Trivia!",
+                "Username:", username,
+                "Server IP:", server
+        };
+    
+        int option = JOptionPane.showConfirmDialog(null, message, "Tricky Trivia - Connect", JOptionPane.OK_CANCEL_OPTION);
+        boolean inputVerify = true;
+        while (inputVerify) {
+            if (option == JOptionPane.OK_OPTION) {
+                name = username.getText();
+                if (name.length() > 0) {
+                    inputVerify = false;
+                } else {
+                    Object[] messageNeedUsername = {
+                        "Welcome to Tricky Trivia!",
+                        "Please enter a username.",
+                        "Username:", username,
+                        "Server IP:", server
+                    };
+                    option = JOptionPane.showConfirmDialog(null, messageNeedUsername, "Tricky Trivia - Connect", JOptionPane.OK_CANCEL_OPTION);
+                }
+            } else {
+                System.exit(0);
+            }
+        }
         jb1 = new JButton("1");
         jb1.addActionListener(this);
         jb1.setOpaque(true);
@@ -152,7 +176,6 @@ public class TriviaClient extends JFrame implements ActionListener {
         disableButtons();
 
         jpGame.add(jtQues, BorderLayout.CENTER);
-        // jpGame.add(jpLives, BorderLayout.SOUTH);
         jpGame.add(jpAns, BorderLayout.SOUTH);
 
         jpMain.add(jpGame, BorderLayout.CENTER);
@@ -160,7 +183,7 @@ public class TriviaClient extends JFrame implements ActionListener {
 
         add(jpMain);
         setVisible(true);
-        connect();
+        connect(server.getText());
     }
 
     public void actionPerformed(ActionEvent ae) {
@@ -348,15 +371,15 @@ public class TriviaClient extends JFrame implements ActionListener {
 		timer.scheduleAtFixedRate(new UpdateBar(), 0, 10);
 	}
     
-    public void connect() {
+    public void connect(String _server) {
         try {
-            s = new Socket(server, 16789);
+            s = new Socket(_server, 16789);
             TriviaClientThread tct = new TriviaClientThread();
             tct.start();
             jtaStream.append("\nConnected to server.");
             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         } catch (UnknownHostException uhe) {
-            jtaStream.append("\nUnknown host: " + server);
+            jtaStream.append("\nUnknown host: " + _server);
             jtaStream.append("\nPlease enter another hostname.");
             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         } catch (ConnectException ce) {

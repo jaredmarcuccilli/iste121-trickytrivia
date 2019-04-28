@@ -99,10 +99,12 @@ public class TriviaServer extends JFrame implements ActionListener {
             slider.setPaintLabels(true);
             slider.setSnapToTicks(true);
             slider.setPreferredSize(new Dimension(300, 50));
+            slider.setEnabled(false);
             jpSouth.add(slider);
             
         jbStartGame = new JButton("Start Game!");
             jbStartGame.addActionListener(this);
+            jbStartGame.setEnabled(false);
             jpSouth.add(jbStartGame);
             
         add(jpSouth, BorderLayout.SOUTH);
@@ -123,6 +125,9 @@ public class TriviaServer extends JFrame implements ActionListener {
             questionBr = new BufferedReader(new InputStreamReader(bis));
             
             ServerSocket ss = new ServerSocket(16789);
+            
+            slider.setEnabled(true);
+            jbStartGame.setEnabled(true); // enable these once we know another server isn't already running
             while(true) {
                     jtaStream.append("\nWaiting for a client...");
                     jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
@@ -133,12 +138,13 @@ public class TriviaServer extends JFrame implements ActionListener {
                     jtaStream.append("\nClient connected. Current connections: " + threads.size());
                     jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
             }
+        } catch (BindException be) {
+            jtaStream.append("\nPort is already in use. (is a server already running on this machine?)");
+            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         
-        jtaStream.append("\nStarting the game!");
-        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         try {
             Thread.sleep(100);
         } catch (InterruptedException ie) {
@@ -190,6 +196,7 @@ public class TriviaServer extends JFrame implements ActionListener {
         jbStartGame.setEnabled(false);
         slider.setEnabled(false);
         jtaStream.append("\nStarting game...");
+        jtaStream.append("\nRunning for " + slider.getValue() + " questions.");
         Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new sendQuestion(), 0, 15000);
     }

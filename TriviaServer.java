@@ -14,7 +14,7 @@ public class TriviaServer extends JFrame implements ActionListener {
     private Vector<Thread> threads = new Vector<Thread>();
     private Vector<Player> players = new Vector<Player>();
     private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
-    private static final int QUESTIONS = 20; // this should be set in the gui
+    private static final int QUESTIONS = 2; // this should be set in the gui
     private Question currentQuestion;
     private int currentQuestionNo;
     private BufferedReader questionBr = null;
@@ -49,10 +49,11 @@ public class TriviaServer extends JFrame implements ActionListener {
         Dimension jpbSize = new Dimension();
 		  jpbSize.setSize(500, 25);
 		  jpbRemaining.setPreferredSize(jpbSize);
-		  jpbRemaining.setMaximum(10000); // Time to answer in milliseconds
+		  jpbRemaining.setMaximum(10000);
 		  jpbRemaining.setMinimum(0);
 		  jpbRemaining.setValue(10000);
 		  jpbRemaining.setStringPainted(true);
+          jpbRemaining.setString(jpbRemaining.getValue() / 1000 + "." + (jpbRemaining.getValue() % 1000)/10 + " Seconds Remaining");
         add(jpbRemaining, BorderLayout.NORTH);
         
         // Menu bar ->
@@ -100,6 +101,14 @@ public class TriviaServer extends JFrame implements ActionListener {
         setVisible(true);
         
         try {
+            String[] ipAddress = InetAddress.getLocalHost().toString().split("/");
+            jtaStream.append("\nIP Address: " + ipAddress[1]);
+        } catch (UnknownHostException uhe) {
+            uhe.printStackTrace();
+        }
+        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+          
+        try {
             FileInputStream fis = new FileInputStream("questions.txt");
             BufferedInputStream bis = new BufferedInputStream(fis);
             questionBr = new BufferedReader(new InputStreamReader(bis));
@@ -138,7 +147,7 @@ public class TriviaServer extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(null, "Tricky Trivia\nCreated for Prof. Patric's ISTE-121\nJake Christoforo\nColin Halter\nJared Marcuccilli\nMark Weathersby", "About Tricky Trivia", JOptionPane.INFORMATION_MESSAGE);
         } else if (ae.getSource() == mItemHelp) {
             JFrame frame = new JFrame();
-            JOptionPane.showMessageDialog(null, "How to Play:\nSpecify how many questions you would like to play, and click \"Start Game!\"\nPlayers have 10 seconds to answer.\nThere are 5 seconds between each question.", "Help", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "How to Play:\nProvide players with the IP address displayed in the text area.\nSpecify how many questions you would like to play, and once all players have connected click \"Start Game!\"\nPlayers have 10 seconds to answer.\nThere are 5 seconds between each question.\nScore is calculated based on how quickly players respond.\nIncorrect responses subtract points.", "Help", JOptionPane.INFORMATION_MESSAGE);
         }
     }
     
@@ -269,6 +278,7 @@ public class TriviaServer extends JFrame implements ActionListener {
     public void gameOver() {
         jtaStream.append("\nGame is over!");
         jpbRemaining.setString("Game is over!");
+        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
     }
     
     public class sendQuestion extends TimerTask {

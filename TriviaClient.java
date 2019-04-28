@@ -28,6 +28,9 @@ public class TriviaClient extends JFrame implements ActionListener {
 
     private JButton jbSend;
     private JProgressBar jpbRemaining = new JProgressBar();
+    private JMenuItem mItemExit = null;
+    private JMenuItem mItemAbout = null;
+    private JMenuItem mItemHelp = null;
 
     /**
      * @param args[0] Server IP
@@ -95,7 +98,35 @@ public class TriviaClient extends JFrame implements ActionListener {
         jpTextIn.add(jbSend, BorderLayout.EAST);
 
         jtaStream.append("Trivia Client starting...");
+        
+        // Menu bar ->
+        JMenuBar mBar = new JMenuBar();
+		setJMenuBar(mBar);
+		JMenu mGame = new JMenu("Game");
+		mGame.setMnemonic('G');
+        mBar.add(mGame);
+        
+        JMenu mHelp = new JMenu("About");
+        mHelp.setMnemonic('A');
+        mBar.add(mHelp);
+        
+		mItemExit = new JMenuItem("Exit");
+        mItemExit.setMnemonic('x');
+        mItemExit.addActionListener(this);
+        
+        mItemAbout = new JMenuItem("About");
+        mItemAbout.setMnemonic('b');
+        mItemAbout.addActionListener(this);
+        
+        mItemHelp = new JMenuItem("Help");
+        mItemHelp.setMnemonic('h');
+        mItemHelp.addActionListener(this);
 
+		mGame.add(mItemExit);
+        mHelp.add(mItemAbout);
+		mHelp.add(mItemHelp);
+        // <- Menu bar
+        
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 shutdown();
@@ -162,6 +193,14 @@ public class TriviaClient extends JFrame implements ActionListener {
                 // send chat message
                 oos.writeObject(new Message(name, jtfChat.getText()));
                 jtfChat.setText("");
+            } else if (ae.getSource() == mItemExit) {
+                shutdown();
+            } else if (ae.getSource() == mItemAbout) {
+                JFrame frame = new JFrame();
+                JOptionPane.showMessageDialog(null, "Tricky Trivia\nCreated for Prof. Patric's ISTE-121\nJake Christoforo\nColin Halter\nJared Marcuccilli\nMark Weathersby", "About Tricky Trivia", JOptionPane.INFORMATION_MESSAGE);
+            } else if (ae.getSource() == mItemHelp) {
+                JFrame frame = new JFrame();
+                JOptionPane.showMessageDialog(null, "How to Play:\nProvide players with the IP address displayed in the text area.\nSpecify how many questions you would like to play, and once all players have connected click \"Start Game!\"\nPlayers have 10 seconds to answer.\nThere are 5 seconds between each question.\nScore is calculated based on how quickly players respond.\nIncorrect responses subtract points.", "Help", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -204,9 +243,14 @@ public class TriviaClient extends JFrame implements ActionListener {
                         jb4.setBackground(null);
                         
                     } else if (in instanceof Message) {
-                        Message m = (Message) in;
-                        jtaStream.append("\n" + m.getSource() + ": " + m.getMessage());
-                        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+                        Message m = (Message)in;
+                        String[] messageSplit = m.getMessage().split(" ");
+                        if (messageSplit[0].equals("/whisper")) {
+                            jtaStream.append("\n" + m.getSource() + " whispers to you: " + m.getMessage().substring(m.getMessage().indexOf(" ")));
+                        } else {
+                            jtaStream.append("\n" + m.getSource() + ": " + m.getMessage());
+                        }
+                            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                     } else if (in instanceof String) {
                         jtaStream.append("\n" + (String) in);
                         jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
@@ -217,7 +261,6 @@ public class TriviaClient extends JFrame implements ActionListener {
                             case 1:
                                 jb1.setBackground(Color.RED);
                                 jb1.setOpaque(true);
-    
                                 repaint();
                                 break;
                             case 2:
@@ -229,13 +272,11 @@ public class TriviaClient extends JFrame implements ActionListener {
                                 jb3.setBackground(Color.RED);
                                 jb3.setOpaque(true);
                                 repaint();
-    
                                 break;
                             case 4:
                                 jb4.setBackground(Color.RED);
                                 jb4.setOpaque(true);
                                 repaint();
-    
                                 break;
                             default:
                                 break;
@@ -246,28 +287,21 @@ public class TriviaClient extends JFrame implements ActionListener {
                                 jb1.setBackground(Color.GREEN);
                                 jb1.setOpaque(true);
                                 repaint();
-
                                 break;
                             case 2:
                                 jb2.setBackground(Color.GREEN);
                                 jb2.setOpaque(true);
-
                                 repaint();
-
                                 break;
                             case 3:
                                 jb3.setBackground(Color.GREEN);
                                 jb3.setOpaque(true);
-
                                 repaint();
-
                                 break;
                             case 4:
                                 jb4.setBackground(Color.GREEN);
                                 jb4.setOpaque(true);
-
                                 repaint();
-
                                 break;
                             default:
                                 break;

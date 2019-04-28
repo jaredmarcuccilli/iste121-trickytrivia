@@ -11,18 +11,18 @@ import java.util.Timer;
 public class TriviaServer extends JFrame implements ActionListener {
     private JTextArea jtaStream;
     
-    private Vector<Thread> threads = new Vector<Thread>();
+    private Vector<TriviaServerThread> threads = new Vector<TriviaServerThread>();
     private Vector<Player> players = new Vector<Player>();
     private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
     private static final int QUESTIONS = 2; // this should be set in the gui
     private Question currentQuestion;
     private int currentQuestionNo;
     private BufferedReader questionBr = null;
-    private boolean serverOpen = true;
     private boolean keepGoing = true;
     
     private JButton jbStartGame;
     private JProgressBar jpbRemaining = new JProgressBar();
+    private JSlider slider = null;
     private JMenuItem mItemExit = null;
     private JMenuItem mItemAbout = null;
     private JMenuItem mItemHelp = null;
@@ -92,10 +92,20 @@ public class TriviaServer extends JFrame implements ActionListener {
         });
         
         JPanel jpSouth = new JPanel();
+        
+        slider = new JSlider(JSlider.HORIZONTAL, 0, 100, 25);
+            slider.setMinorTickSpacing(1);
+            slider.setMajorTickSpacing(10);
+            slider.setPaintTicks(true);
+            slider.setPaintLabels(true);
+            slider.setSnapToTicks(true);
+            slider.setPreferredSize(new Dimension(300, 50));
+            jpSouth.add(slider);
+            
         jbStartGame = new JButton("Start Game!");
             jbStartGame.addActionListener(this);
             jpSouth.add(jbStartGame);
-
+            
         add(jpSouth, BorderLayout.SOUTH);
         
         setVisible(true);
@@ -114,15 +124,15 @@ public class TriviaServer extends JFrame implements ActionListener {
             questionBr = new BufferedReader(new InputStreamReader(bis));
             
             ServerSocket ss = new ServerSocket(16789);
-            while(serverOpen) {
-                jtaStream.append("\nWaiting for a client...");
-                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-                Socket s = ss.accept();
-                TriviaServerThread tst = new TriviaServerThread(s);
-                threads.add(tst);
-                tst.start();
-                jtaStream.append("\nClient connected. Current connections: " + threads.size());
-                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+            while(true) {
+                    jtaStream.append("\nWaiting for a client...");
+                    jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+                    Socket s = ss.accept();
+                    TriviaServerThread tst = new TriviaServerThread(s);
+                    threads.add(tst);
+                    tst.start();
+                    jtaStream.append("\nClient connected. Current connections: " + threads.size());
+                    jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -180,7 +190,6 @@ public class TriviaServer extends JFrame implements ActionListener {
     public void startGame() {
         jbStartGame.setEnabled(false);
         jtaStream.append("\nStarting game...");
-        serverOpen = false;
         Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new sendQuestion(), 0, 15000);
     }
@@ -227,12 +236,27 @@ public class TriviaServer extends JFrame implements ActionListener {
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                             a.setPlayerAnswerNum(0);
                         }
-
                     } else if (in instanceof Message) {
                         Message m = (Message)in;
-                        jtaStream.append("\n" + m.toString());
-                        jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-                        sendClients(m);
+                        String[] messageSplit = m.getMessage().split(" ");
+                        boolean playerFound = false;
+                        if (messageSplit[0].equals("/whisper") && messageSplit.length > 1) {
+                            for (TriviaServerThread t : threads) {
+                                if (t.getThisPlayer().getPlayerName().equalsIgnoreCase(messageSplit[1])) {
+                                    t.sendThisClient(m);
+                                    jtaStream.append("\n" + m.getSource() + " whispers to " + t.getThisPlayer().getPlayerName() +": " + m.getMessage().substring(m.getMessage().indexOf(" "))); // get rid of the first 2 words; /whisper and the destination name
+                                    playerFound = true;
+                                }
+                            }
+                            if (!playerFound) {
+                                jtaStream.append("\nCouldn't find player " + m.getSource() + " tried to whisper to: " + m.getMessage());
+                                sendThisClient("I couldn't find the player you were trying to whisper to.");
+                            }
+                        } else {
+                            jtaStream.append("\n" + m.toString());
+                            jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+                            sendClients(m);
+                        }
                     }
                 }
             } catch (SocketException se) {
@@ -242,6 +266,8 @@ public class TriviaServer extends JFrame implements ActionListener {
                 threads.remove(this);
                 players.remove(thisPlayer);
                 allObjectOutputStreams.remove(oos);
+                jtaStream.append("\nCurrent connections: " + threads.size());
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
             } catch (EOFException eofe) {
                 // server lost connection to client
                 jtaStream.append("\nLost connection to: " + thisPlayer.getPlayerName());
@@ -249,10 +275,24 @@ public class TriviaServer extends JFrame implements ActionListener {
                 threads.remove(this);
                 players.remove(thisPlayer);
                 allObjectOutputStreams.remove(oos);
+                jtaStream.append("\nCurrent connections: " + threads.size());
+                jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             } catch (ClassNotFoundException cnfe) {
                 cnfe.printStackTrace();
+            }
+        }
+        
+        public Player getThisPlayer() {
+            return thisPlayer;
+        }
+        
+        public void sendThisClient(Object _o) {
+            try {
+                oos.writeObject(_o);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
             }
         }
     }
@@ -279,6 +319,7 @@ public class TriviaServer extends JFrame implements ActionListener {
         jtaStream.append("\nGame is over!");
         jpbRemaining.setString("Game is over!");
         jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+        // should s
     }
     
     public class sendQuestion extends TimerTask {
@@ -292,7 +333,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                     jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 } 
                 startTimer();
-                if (currentQuestionNo == QUESTIONS) {
+                if (currentQuestionNo == slider.getValue()) {
                     keepGoing = false;
                 }
             }

@@ -14,7 +14,6 @@ public class TriviaServer extends JFrame implements ActionListener {
     private Vector<TriviaServerThread> threads = new Vector<TriviaServerThread>();
     private Vector<Player> players = new Vector<Player>();
     private Vector<ObjectOutputStream> allObjectOutputStreams = new Vector<ObjectOutputStream>();
-    private static final int QUESTIONS = 2; // this should be set in the gui
     private Question currentQuestion;
     private int currentQuestionNo;
     private BufferedReader questionBr = null;
@@ -47,13 +46,13 @@ public class TriviaServer extends JFrame implements ActionListener {
         jtaStream.append("Trivia Server starting...");
         
         Dimension jpbSize = new Dimension();
-		  jpbSize.setSize(500, 25);
-		  jpbRemaining.setPreferredSize(jpbSize);
-		  jpbRemaining.setMaximum(10000);
-		  jpbRemaining.setMinimum(0);
-		  jpbRemaining.setValue(10000);
-		  jpbRemaining.setStringPainted(true);
-          jpbRemaining.setString(jpbRemaining.getValue() / 1000 + "." + (jpbRemaining.getValue() % 1000)/10 + " Seconds Remaining");
+        jpbSize.setSize(500, 25);
+    	jpbRemaining.setPreferredSize(jpbSize);
+    	jpbRemaining.setMaximum(10000);
+    	jpbRemaining.setMinimum(0);
+    	jpbRemaining.setValue(10000);
+    	jpbRemaining.setStringPainted(true);
+        jpbRemaining.setString(jpbRemaining.getValue() / 1000 + "." + (jpbRemaining.getValue() % 1000)/10 + " Seconds Remaining");
         add(jpbRemaining, BorderLayout.NORTH);
         
         // Menu bar ->
@@ -189,6 +188,7 @@ public class TriviaServer extends JFrame implements ActionListener {
     
     public void startGame() {
         jbStartGame.setEnabled(false);
+        slider.setEnabled(false);
         jtaStream.append("\nStarting game...");
         Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new sendQuestion(), 0, 15000);
@@ -321,7 +321,6 @@ public class TriviaServer extends JFrame implements ActionListener {
         jtaStream.append("\nGame is over!");
         jpbRemaining.setString("Game is over!");
         jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-        // should s
     }
     
     public class sendQuestion extends TimerTask {

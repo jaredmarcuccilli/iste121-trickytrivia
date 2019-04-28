@@ -23,17 +23,20 @@ public class TriviaServer extends JFrame implements ActionListener {
     
     private JButton jbStartGame;
     private JProgressBar jpbRemaining = new JProgressBar();
+    private JMenuItem mItemExit = null;
+    private JMenuItem mItemAbout = null;
+    private JMenuItem mItemHelp = null;
     
     public static void main(String[] args) {
         new TriviaServer();
     }
     
     public TriviaServer() {
-        super("Trivia - Server");
-        setLocationRelativeTo(null);
+        super("Tricky Trivia - Server");
         setLayout(new BorderLayout());
         setSize(600, 400);
         setResizable(false);
+        setLocationRelativeTo(null);
         
         jtaStream = new JTextArea();
         jtaStream.setEditable(false);
@@ -46,11 +49,39 @@ public class TriviaServer extends JFrame implements ActionListener {
         Dimension jpbSize = new Dimension();
 		  jpbSize.setSize(500, 25);
 		  jpbRemaining.setPreferredSize(jpbSize);
-		  jpbRemaining.setMaximum(10000); //TIME TO ANSWER IN MILISECONDS
+		  jpbRemaining.setMaximum(10000); // Time to answer in milliseconds
 		  jpbRemaining.setMinimum(0);
 		  jpbRemaining.setValue(10000);
 		  jpbRemaining.setStringPainted(true);
         add(jpbRemaining, BorderLayout.NORTH);
+        
+        // Menu bar ->
+        JMenuBar mBar = new JMenuBar();
+		setJMenuBar(mBar);
+		JMenu mGame = new JMenu("Game");
+		mGame.setMnemonic('G');
+        mBar.add(mGame);
+        
+        JMenu mHelp = new JMenu("About");
+        mHelp.setMnemonic('A');
+        mBar.add(mHelp);
+        
+		mItemExit = new JMenuItem("Exit");
+        mItemExit.setMnemonic('x');
+        mItemExit.addActionListener(this);
+        
+        mItemAbout = new JMenuItem("About");
+        mItemAbout.setMnemonic('b');
+        mItemAbout.addActionListener(this);
+        
+        mItemHelp = new JMenuItem("Help");
+        mItemHelp.setMnemonic('h');
+        mItemHelp.addActionListener(this);
+
+		mGame.add(mItemExit);
+        mHelp.add(mItemAbout);
+		mHelp.add(mItemHelp);
+        // <- Menu bar
         
         addWindowListener(
             new WindowAdapter() {
@@ -100,6 +131,14 @@ public class TriviaServer extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == jbStartGame) {
             startGame();
+        } else if (ae.getSource() == mItemExit) {
+            shutdown();
+        } else if (ae.getSource() == mItemAbout) {
+            JFrame frame = new JFrame();
+            JOptionPane.showMessageDialog(null, "Tricky Trivia\nCreated for Prof. Patric's ISTE-121\nJake Christoforo\nColin Halter\nJared Marcuccilli\nMark Weathersby", "About Tricky Trivia", JOptionPane.INFORMATION_MESSAGE);
+        } else if (ae.getSource() == mItemHelp) {
+            JFrame frame = new JFrame();
+            JOptionPane.showMessageDialog(null, "How to Play:\nSpecify how many questions you would like to play, and click \"Start Game!\"\nPlayers have 10 seconds to answer.\nThere are 5 seconds between each question.", "Help", JOptionPane.INFORMATION_MESSAGE);
         }
     }
     

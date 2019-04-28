@@ -41,12 +41,11 @@ public class TriviaClient extends JFrame implements ActionListener {
     }
 
     public TriviaClient(String _server, String _name) {
-        super("Trivia - Client");
-        setLocationRelativeTo(null);
+        super("Tricky Trivia - Client");
         setLayout(new BorderLayout());
         setSize(600, 300);
         setResizable(false);
-       
+        setLocationRelativeTo(null);
 
         JPanel jpMain = new JPanel(new BorderLayout()); // Separates chat and game
         JPanel jpGame = new JPanel(new BorderLayout()); // Holds the game components see GUI mockup on trello

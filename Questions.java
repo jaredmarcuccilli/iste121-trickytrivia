@@ -1,3 +1,4 @@
+// This is the first mock-up of the client GUI
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;

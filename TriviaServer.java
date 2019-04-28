@@ -241,10 +241,12 @@ public class TriviaServer extends JFrame implements ActionListener {
                         String[] messageSplit = m.getMessage().split(" ");
                         boolean playerFound = false;
                         if (messageSplit[0].equals("/whisper") && messageSplit.length > 1) {
+                            String msg = m.getMessage().substring(m.getMessage().indexOf(" ") + 1);
+                            msg = msg.substring(msg.indexOf(" ") + 1);
                             for (TriviaServerThread t : threads) {
                                 if (t.getThisPlayer().getPlayerName().equalsIgnoreCase(messageSplit[1])) {
                                     t.sendThisClient(m);
-                                    jtaStream.append("\n" + m.getSource() + " whispers to " + t.getThisPlayer().getPlayerName() +": " + m.getMessage().substring(m.getMessage().indexOf(" "))); // get rid of the first 2 words; /whisper and the destination name
+                                    jtaStream.append("\n" + m.getSource() + " whispers to " + t.getThisPlayer().getPlayerName() +": " + msg); // get rid of the first 2 words; /whisper and the destination name
                                     playerFound = true;
                                 }
                             }

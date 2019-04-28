@@ -200,7 +200,7 @@ public class TriviaClient extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(null, "Tricky Trivia\nCreated for Prof. Patric's ISTE-121\nJake Christoforo\nColin Halter\nJared Marcuccilli\nMark Weathersby", "About Tricky Trivia", JOptionPane.INFORMATION_MESSAGE);
             } else if (ae.getSource() == mItemHelp) {
                 JFrame frame = new JFrame();
-                JOptionPane.showMessageDialog(null, "How to Play:\nProvide players with the IP address displayed in the text area.\nSpecify how many questions you would like to play, and once all players have connected click \"Start Game!\"\nPlayers have 10 seconds to answer.\nThere are 5 seconds between each question.\nScore is calculated based on how quickly players respond.\nIncorrect responses subtract points.", "Help", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Once the game operator starts the game, you will receive a question every 15 seconds.\nYou will have 10 seconds to answer the question.\nSelect the correct answer as fast as possible to win points!\nChat with other players using the chat window!\nTo whisper a message to another player, type /whisper followed by their username and your message.", "Help", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -208,10 +208,6 @@ public class TriviaClient extends JFrame implements ActionListener {
     }
 
     public class TriviaClientThread extends Thread implements Serializable {
-    
-        public TriviaClientThread() {
-
-        }
 
         public void run() {
             try {
@@ -246,7 +242,9 @@ public class TriviaClient extends JFrame implements ActionListener {
                         Message m = (Message)in;
                         String[] messageSplit = m.getMessage().split(" ");
                         if (messageSplit[0].equals("/whisper")) {
-                            jtaStream.append("\n" + m.getSource() + " whispers to you: " + m.getMessage().substring(m.getMessage().indexOf(" ")));
+                            String msg = m.getMessage().substring(m.getMessage().indexOf(" ") + 1);
+                            msg = msg.substring(msg.indexOf(" ") + 1);
+                            jtaStream.append("\n" + m.getSource() + " whispers to you: " + msg);
                         } else {
                             jtaStream.append("\n" + m.getSource() + ": " + m.getMessage());
                         }
@@ -309,7 +307,7 @@ public class TriviaClient extends JFrame implements ActionListener {
                     }
                 }
             } catch (SocketException se) {
-                // client lost connection to server
+                // Client lost connection to server
                 jtaStream.append("\nLost connection to server");
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 jbSend.setEnabled(false);
@@ -371,14 +369,14 @@ public class TriviaClient extends JFrame implements ActionListener {
     }
 
     public void shutdown() {
-        System.out.println("Client shutting down...");
+        // System.out.println("Client shutting down...");
         try {
             if (connected) {
                 s.close();
                 ois.close();
                 oos.close();
             } else {
-                System.out.println("Wasn't connected");
+                // System.out.println("Wasn't connected");
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();

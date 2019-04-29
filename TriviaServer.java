@@ -173,19 +173,37 @@ public class TriviaServer extends JFrame implements ActionListener {
         }
     }
     
-    public void drawBoard()
-    {
-    	jfScores = new JFrame("High Scores");
+    /**
+     * Create the leaderboard JFrame
+     */
+    public void drawBoard() {
+    	jfScores = new JFrame("Trivia - Leaderboard");
     	jfScores.setLayout(new GridLayout(0,2));
+        jfScores.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        jfScores.setResizable(false);
     	
-    	for(Player currPlayer : players)
-    	{
-    		jfScores.add(new JLabel(currPlayer.getPlayerName()));
-    		jfScores.add(new JLabel("" + currPlayer.getPlayerScore()));
-    	}
-    	
-    	jfScores.setSize(100,400);
+        redrawBoard();
+        
+    	jfScores.setSize(250,400);
+        jfScores.setLocationRelativeTo(null);
     	jfScores.setVisible(true);
+    }
+    
+    public void redrawBoard() {
+        jfScores.getContentPane().removeAll();
+        jfScores.getContentPane().repaint();
+        for (Player currPlayer : players) {
+            JLabel jlName = new JLabel();
+            JLabel jlScore = new JLabel();
+            jlName.setFont(new Font("helvetica", Font.PLAIN, 32));
+            jlScore.setFont(new Font("helvetica", Font.PLAIN, 32));
+            jlName.setText(currPlayer.getPlayerName());
+            jfScores.add(jlName);
+            jlScore.setText("" + currPlayer.getPlayerScore());
+            jfScores.add(jlScore);
+            jfScores.revalidate();
+            jfScores.repaint();
+    	}
     }
     
     /**
@@ -217,6 +235,7 @@ public class TriviaServer extends JFrame implements ActionListener {
 				// Changing printed value of progress bar
 				jpbRemaining.setString(jpbRemaining.getValue() / 1000 + "." + (jpbRemaining.getValue() % 1000)/10 + " Seconds Remaining");
 			} else {
+                redrawBoard();
 				jtaStream.append("\nTime's up!");
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
 				jpbRemaining.setValue(0);
@@ -281,18 +300,12 @@ public class TriviaServer extends JFrame implements ActionListener {
                 thisPlayer = new Player((String)ois.readObject());
                 players.add(thisPlayer);
                 
-                JLabel jlScore = new JLabel(""+thisPlayer.getPlayerScore());
-                jfScores.add(new JLabel(thisPlayer.getPlayerName()));
-                jfScores.add(jlScore);
-                jfScores.revalidate();
-                
                 jtaStream.append("\n" + thisPlayer.getPlayerName() + " joined the server");
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 
+                redrawBoard();
+                
                 while (true) {
-                	jlScore.setText("" + thisPlayer.getPlayerScore());
-                	jfScores.revalidate();
-                	
                     Object in = ois.readObject();
                     if (in instanceof Answer) { // If an Answer is received...
                         Answer a = (Answer)in;
@@ -346,8 +359,9 @@ public class TriviaServer extends JFrame implements ActionListener {
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 threads.remove(this);
                 players.remove(thisPlayer);
+                redrawBoard();
                 allObjectOutputStreams.remove(oos);
-                jtaStream.append("\nCurrent connections: " + threads.size());
+                jtaStream.append("\nCurrent connections: " + players.size());
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
             } catch (EOFException eofe) {
                 // Server lost connection to client
@@ -355,8 +369,9 @@ public class TriviaServer extends JFrame implements ActionListener {
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 threads.remove(this);
                 players.remove(thisPlayer);
+                redrawBoard();
                 allObjectOutputStreams.remove(oos);
-                jtaStream.append("\nCurrent connections: " + threads.size());
+                jtaStream.append("\nCurrent connections: " + players.size());
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
             } catch (IOException ioe) {
                 ioe.printStackTrace();

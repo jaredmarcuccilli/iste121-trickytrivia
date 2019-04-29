@@ -28,6 +28,8 @@ public class TriviaServer extends JFrame implements ActionListener {
     private BufferedReader questionBr = null;
     private boolean keepGoing = true;
     
+    private JFrame jfScores;
+    
     private JButton jbStartGame;
     private JProgressBar jpbRemaining = new JProgressBar();
     private JSlider slider = null;
@@ -131,6 +133,7 @@ public class TriviaServer extends JFrame implements ActionListener {
             
         add(jpSouth, BorderLayout.SOUTH);
         
+        drawBoard();
         setVisible(true);
         
         // Print out the server's IP info
@@ -168,6 +171,21 @@ public class TriviaServer extends JFrame implements ActionListener {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+    
+    public void drawBoard()
+    {
+    	jfScores = new JFrame("High Scores");
+    	jfScores.setLayout(new GridLayout(0,2));
+    	
+    	for(Player currPlayer : players)
+    	{
+    		jfScores.add(new JLabel(currPlayer.getPlayerName()));
+    		jfScores.add(new JLabel("" + currPlayer.getPlayerScore()));
+    	}
+    	
+    	jfScores.setSize(100,400);
+    	jfScores.setVisible(true);
     }
     
     /**
@@ -262,10 +280,19 @@ public class TriviaServer extends JFrame implements ActionListener {
                 allObjectOutputStreams.add(oos);
                 thisPlayer = new Player((String)ois.readObject());
                 players.add(thisPlayer);
+                
+                JLabel jlScore = new JLabel(""+thisPlayer.getPlayerScore());
+                jfScores.add(new JLabel(thisPlayer.getPlayerName()));
+                jfScores.add(jlScore);
+                jfScores.revalidate();
+                
                 jtaStream.append("\n" + thisPlayer.getPlayerName() + " joined the server");
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 
                 while (true) {
+                	jlScore.setText("" + thisPlayer.getPlayerScore());
+                	jfScores.revalidate();
+                	
                     Object in = ois.readObject();
                     if (in instanceof Answer) { // If an Answer is received...
                         Answer a = (Answer)in;
@@ -274,7 +301,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                             thisPlayer.addPlayerScore(jpbRemaining.getValue()/100);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + " in  " + (10 - jpbRemaining.getValue()/1000) + " seconds, which is correct. Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-                            a.setPlayerAnswerNum(0);
+                            a.setPlayerAnswerNum(0); 
                         } else if (a.getPlayerAnswerNum() == 0) {
                             // If answer is 0, player didn't answer in time
                             thisPlayer.subtractPlayerScore(10);
@@ -434,4 +461,4 @@ public class TriviaServer extends JFrame implements ActionListener {
         }
         return null;
     }
-}
+}//

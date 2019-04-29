@@ -258,7 +258,7 @@ public class TriviaClient extends JFrame implements ActionListener {
         }
     }
 
-    /**
+    /** 
      * Thread for client communication with server.
      */
     public class TriviaClientThread extends Thread implements Serializable {
@@ -477,4 +477,4 @@ public class TriviaClient extends JFrame implements ActionListener {
         jb3.setEnabled(false);
         jb4.setEnabled(false);
     }
-}
+}//

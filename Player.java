@@ -7,7 +7,7 @@ public class Player implements Serializable {
     public Player(String _name) {
         name = _name;
     }
-    
+     
     public String getPlayerName() {
         return name;
     }
@@ -23,4 +23,4 @@ public class Player implements Serializable {
     public void subtractPlayerScore(int x) {
         score -= x;    
     }
-}
+}//

@@ -7,7 +7,16 @@ import java.awt.event.*;
 import javax.swing.text.*;
 import java.io.Serializable;
 import java.util.Timer;
-
+/**
+ * Trivia game server. Accepts client connections and handles game logic.
+ *
+ * @author Jake Christoforo
+ * @author Colin Halter
+ * @author Jared Marcuccilli
+ * @author Mark Weathersby
+ *  
+ * @version 1.0.0
+ */
 public class TriviaServer extends JFrame implements ActionListener {
     private JTextArea jtaStream;
     
@@ -26,17 +35,26 @@ public class TriviaServer extends JFrame implements ActionListener {
     private JMenuItem mItemAbout = null;
     private JMenuItem mItemHelp = null;
     
+    /**
+     * Create a new TriviaServer.
+     */
     public static void main(String[] args) {
         new TriviaServer();
     }
     
+    /**
+     * Create GUI elements and accept client connections.
+     * Create threads with client sockets.
+     */
     public TriviaServer() {
+        // Create initial gui
         super("Tricky Trivia - Server");
         setLayout(new BorderLayout());
         setSize(600, 400);
         setResizable(false);
         setLocationRelativeTo(null);
         
+        // Create main text area
         jtaStream = new JTextArea();
         jtaStream.setEditable(false);
         jtaStream.setLineWrap(true);
@@ -45,6 +63,7 @@ public class TriviaServer extends JFrame implements ActionListener {
         add(jspStream);
         jtaStream.append("Trivia Server starting...");
         
+        // Create time remaining bar
         Dimension jpbSize = new Dimension();
         jpbSize.setSize(500, 25);
     	jpbRemaining.setPreferredSize(jpbSize);
@@ -83,6 +102,7 @@ public class TriviaServer extends JFrame implements ActionListener {
 		mHelp.add(mItemHelp);
         // <- Menu bar
         
+        // Add window listener to shutdown on close
         addWindowListener(
             new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
@@ -92,6 +112,7 @@ public class TriviaServer extends JFrame implements ActionListener {
         
         JPanel jpSouth = new JPanel();
         
+        // Create the question number slider
         slider = new JSlider(JSlider.HORIZONTAL, 0, 100, 25);
             slider.setMinorTickSpacing(1);
             slider.setMajorTickSpacing(10);
@@ -101,7 +122,8 @@ public class TriviaServer extends JFrame implements ActionListener {
             slider.setPreferredSize(new Dimension(300, 50));
             slider.setEnabled(false);
             jpSouth.add(slider);
-            
+        
+        // Start game button
         jbStartGame = new JButton("Start Game!");
             jbStartGame.addActionListener(this);
             jbStartGame.setEnabled(false);
@@ -111,6 +133,7 @@ public class TriviaServer extends JFrame implements ActionListener {
         
         setVisible(true);
         
+        // Print out the server's IP info
         try {
             String[] ipAddress = InetAddress.getLocalHost().toString().split("/");
             jtaStream.append("\nIP Address: " + ipAddress[1]);
@@ -118,7 +141,8 @@ public class TriviaServer extends JFrame implements ActionListener {
             uhe.printStackTrace();
         }
         jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
-          
+        
+        // Create reader for questions.txt
         try {
             FileInputStream fis = new FileInputStream("questions.txt");
             BufferedInputStream bis = new BufferedInputStream(fis);
@@ -127,12 +151,12 @@ public class TriviaServer extends JFrame implements ActionListener {
             ServerSocket ss = new ServerSocket(16789);
             
             slider.setEnabled(true);
-            jbStartGame.setEnabled(true); // enable these once we know another server isn't already running
+            jbStartGame.setEnabled(true); // Enable these once we know another server isn't already running
             while(true) {
                     jtaStream.append("\nWaiting for a client...");
                     jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                     Socket s = ss.accept();
-                    TriviaServerThread tst = new TriviaServerThread(s);
+                    TriviaServerThread tst = new TriviaServerThread(s); // Create a thread with a new client connection
                     threads.add(tst);
                     tst.start();
                     jtaStream.append("\nClient connected. Current connections: " + threads.size());
@@ -144,28 +168,30 @@ public class TriviaServer extends JFrame implements ActionListener {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-        
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        }
     }
     
+    /**
+     * Perform action based on ActionEvents.
+     * @param ActionEvent
+     */
     public void actionPerformed(ActionEvent ae) {
-        if (ae.getSource() == jbStartGame) {
+        if (ae.getSource() == jbStartGame) { // Start game button
             startGame();
-        } else if (ae.getSource() == mItemExit) {
+        } else if (ae.getSource() == mItemExit) { // Menu bar "exit"
             shutdown();
-        } else if (ae.getSource() == mItemAbout) {
+        } else if (ae.getSource() == mItemAbout) { // Menu bar "about"
             JFrame frame = new JFrame();
-            JOptionPane.showMessageDialog(null, "Tricky Trivia\nCreated for Prof. Patric's ISTE-121\nJake Christoforo\nColin Halter\nJared Marcuccilli\nMark Weathersby", "About Tricky Trivia", JOptionPane.INFORMATION_MESSAGE);
-        } else if (ae.getSource() == mItemHelp) {
+            JOptionPane.showMessageDialog(null, "Tricky Trivia\nCreated for Prof. Patric's ISTE-121\nDeveloped by:\n   Jake Christoforo\n   Colin Halter\n   Jared Marcuccilli\n   Mark Weathersby", "About Tricky Trivia", JOptionPane.INFORMATION_MESSAGE);
+        } else if (ae.getSource() == mItemHelp) { // Menu bar "help"
             JFrame frame = new JFrame();
             JOptionPane.showMessageDialog(null, "How to Play:\nProvide players with the IP address displayed in the text area.\nSpecify how many questions you would like to play, and once all players have connected click \"Start Game!\"\nPlayers have 10 seconds to answer.\nThere are 5 seconds between each question.\nScore is calculated based on how quickly players respond.\nIncorrect responses subtract points.", "Help", JOptionPane.INFORMATION_MESSAGE);
         }
     }
     
+    /**
+     * Timer bar.
+     * Runs for 10 seconds. Once time is up, display "Time's Up!"
+     */
     public class UpdateBar extends TimerTask {
 		public void run() {
 			if(jpbRemaining.getValue() > 0) {
@@ -187,12 +213,20 @@ public class TriviaServer extends JFrame implements ActionListener {
 		}
 	}
     
+    /**
+     * Create the timer bar and update it.
+     */
     public void startTimer() {
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new UpdateBar(), 0, 10);
 	}
     
+    /**
+     * Start the game. Send new questions to the clients every 15 seconds.
+     */
     public void startGame() {
+        keepGoing = true;
+        currentQuestionNo = 0;
         jbStartGame.setEnabled(false);
         slider.setEnabled(false);
         jtaStream.append("\nStarting game...");
@@ -201,16 +235,26 @@ public class TriviaServer extends JFrame implements ActionListener {
 		timer.scheduleAtFixedRate(new sendQuestion(), 0, 15000);
     }
     
+    /**
+     * Thread for each client. Handles object io and keeps track of player's score.
+     */
     public class TriviaServerThread extends Thread implements Serializable {
         private Socket s;
         private ObjectInputStream ois;
         private ObjectOutputStream oos;
         private Player thisPlayer;
         
+        /**
+         * Constructor.
+         * @param Socket The client's socket
+         */
         public TriviaServerThread(Socket _s) {
             s = _s;
         }
         
+        /**
+         * Run thread.
+         */
         public void run() {
             try {
                 ois = new ObjectInputStream(s.getInputStream());
@@ -223,7 +267,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                 
                 while (true) {
                     Object in = ois.readObject();
-                    if (in instanceof Answer) {
+                    if (in instanceof Answer) { // If an Answer is received...
                         Answer a = (Answer)in;
                         if (a.getPlayerAnswerNum() == currentQuestion.getCorrectAnswerNum()) {
                             // On correct answer, add score to player based on the time they answered
@@ -232,36 +276,37 @@ public class TriviaServer extends JFrame implements ActionListener {
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                             a.setPlayerAnswerNum(0);
                         } else if (a.getPlayerAnswerNum() == 0) {
+                            // If answer is 0, player didn't answer in time
                             thisPlayer.subtractPlayerScore(10);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " didn't answer in time! Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                             a.setPlayerAnswerNum(0);
                         } else {
-                            // incorrect answer, update score
+                            // Incorrect answer, update score
                             thisPlayer.subtractPlayerScore(10);
                             jtaStream.append("\n" + thisPlayer.getPlayerName() + " answered " + a.getPlayerAnswerNum() + ", which is incorrect. Their score is: " + thisPlayer.getPlayerScore());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                             a.setPlayerAnswerNum(0);
                         }
-                    } else if (in instanceof Message) {
+                    } else if (in instanceof Message) { // If a Message is received...
                         Message m = (Message)in;
                         String[] messageSplit = m.getMessage().split(" ");
                         boolean playerFound = false;
-                        if (messageSplit[0].equals("/whisper") && messageSplit.length > 1) {
+                        if (messageSplit[0].equals("/whisper") && messageSplit.length > 1) { // If a /whisper command...
                             String msg = m.getMessage().substring(m.getMessage().indexOf(" ") + 1);
                             msg = msg.substring(msg.indexOf(" ") + 1);
-                            for (TriviaServerThread t : threads) {
+                            for (TriviaServerThread t : threads) { // Find the destination player and send only them the message
                                 if (t.getThisPlayer().getPlayerName().equalsIgnoreCase(messageSplit[1])) {
                                     t.sendThisClient(m);
-                                    jtaStream.append("\n" + m.getSource() + " whispers to " + t.getThisPlayer().getPlayerName() +": " + msg); // get rid of the first 2 words; /whisper and the destination name
+                                    jtaStream.append("\n" + m.getSource() + " whispers to " + t.getThisPlayer().getPlayerName() +": " + msg); // Get rid of the first 2 words; /whisper and the destination name
                                     playerFound = true;
                                 }
                             }
-                            if (!playerFound) {
+                            if (!playerFound) { // If destination player couldn't be found...
                                 jtaStream.append("\nCouldn't find player " + m.getSource() + " tried to whisper to: " + m.getMessage());
                                 sendThisClient("I couldn't find the player you were trying to whisper to.");
                             }
-                        } else {
+                        } else { // If a general message, send to all clients and append to chat log
                             jtaStream.append("\n" + m.toString());
                             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                             sendClients(m);
@@ -269,7 +314,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                     }
                 }
             } catch (SocketException se) {
-                // server lost connection to client
+                // Server lost connection to client
                 jtaStream.append("\nLost connection to: " + thisPlayer.getPlayerName());
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 threads.remove(this);
@@ -278,7 +323,7 @@ public class TriviaServer extends JFrame implements ActionListener {
                 jtaStream.append("\nCurrent connections: " + threads.size());
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
             } catch (EOFException eofe) {
-                // server lost connection to client
+                // Server lost connection to client
                 jtaStream.append("\nLost connection to: " + thisPlayer.getPlayerName());
                 jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
                 threads.remove(this);
@@ -293,10 +338,18 @@ public class TriviaServer extends JFrame implements ActionListener {
             }
         }
         
+        /**
+         * Return a thread's Player object.
+         * @return thisPlayer
+         */
         public Player getThisPlayer() {
             return thisPlayer;
         }
         
+        /**
+         * Send an object to this thread's player.
+         * @param Object The object to send to this player
+         */
         public void sendThisClient(Object _o) {
             try {
                 oos.writeObject(_o);
@@ -306,14 +359,19 @@ public class TriviaServer extends JFrame implements ActionListener {
         }
     }
     
-    // Server shutdown
+    /**
+     * Shut down the server.
+     */
     public void shutdown() {
         jtaStream.append("\nServer shutting down...");
         jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
         System.exit(0);
     }
     
-    // Sent object to all clients
+    /**
+     * Send an object to all clients.
+     * @param Object The object to send to all clients
+     */
     public void sendClients(Object _o) {
         for (ObjectOutputStream oos : allObjectOutputStreams) {
             try {
@@ -324,12 +382,19 @@ public class TriviaServer extends JFrame implements ActionListener {
         }
     }
     
+    /**
+     * Indicate that the game is over.
+     */
     public void gameOver() {
         jtaStream.append("\nGame is over!");
         jpbRemaining.setString("Game is over!");
         jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
+
     }
     
+    /**
+     * Send a Question to all clients. Keep track of what number question we are on.
+     */
     public class sendQuestion extends TimerTask {
         public void run() {
             if (keepGoing) {
@@ -348,7 +413,10 @@ public class TriviaServer extends JFrame implements ActionListener {
         }
     }
     
-    // Return a Question object
+    /**
+     * Grab a new Question from the text file.
+     * @return Question
+     */
     public Question getNewQuestion() {
         String[] questionElements = new String[6];
         
@@ -357,9 +425,9 @@ public class TriviaServer extends JFrame implements ActionListener {
             Question q = new Question(questionElements[0], questionElements[1], questionElements[2], questionElements[3], questionElements[4], questionElements[5]);
             return q;
         } catch (FileNotFoundException fnfe) {
-         
+            fnfe.printStackTrace();
         } catch (IOException ioe) {
-         
+            ioe.printStackTrace();
         } catch (NullPointerException npe) {
             jtaStream.append("\nReached end of question file");
             jtaStream.setCaretPosition(jtaStream.getDocument().getLength());
